@@ -83,7 +83,7 @@ class MemberServices
     public static function update(MemberUpdateRequest $request)
     {
         $entity = MemberRepository::search([
-            ['email', '=', $request->email]
+            ['target_email', '=', $request->email]
         ])[0];
 
         $repository = new MemberRepository($entity);
