@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Hash;
 
 class MemberServices
 {
-    const SEARCH_REQUEST_ATTRIBUTES = [
+    private const SEARCH_REQUEST_ATTRIBUTES = [
         'name' => ['column' => 'name', 'operator' => '='],
         'email' => ['column' => 'email', 'operator' => '='],
         'phone' => ['column' => 'phone', 'operator' => '='],
@@ -30,7 +30,7 @@ class MemberServices
         'penalty_balance_greater_than' => ['column' => 'penalty_balance', 'operator' => '>'],
     ];
 
-    const UPDATE_REQUEST_ATTRIBUTES = [
+    private const UPDATE_REQUEST_ATTRIBUTES = [
         'name',
         'email',
         'password',

@@ -14,7 +14,7 @@ use App\Repositories\BorrowRepository;
 
 class BorrowServices
 {
-    const SEARCH_REQUEST_ATTRIBUTES = [
+    private const SEARCH_REQUEST_ATTRIBUTES = [
         'member_id' => ['column' => 'member_id', 'operator' => '='],
         'book_id' => ['column' => 'book_id', 'operator' => '='],
         'borrowed_at' => ['column' => 'borrowed_at', 'operator' => '='],
@@ -32,7 +32,7 @@ class BorrowServices
         'penalty_amount_greater_than' => ['column' => 'penalty_amount', 'operator' => '>'],
     ];
 
-    const UPDATE_REQUEST_ATTRIBUTES = [
+    private const UPDATE_REQUEST_ATTRIBUTES = [
         'due_date',
             'returned_at',
             'status',

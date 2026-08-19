@@ -11,12 +11,12 @@ use App\Http\Requests\CategoryUpdateRequest;
 use App\Repositories\CategoryRepository;
 
 class CategoryServices{
-    const SEARCH_REQUEST_ATTRIBUTES = [
+    private const SEARCH_REQUEST_ATTRIBUTES = [
         'name' => ['column' => 'name', 'operator' => '='],
         'description' => ['column' => 'description', 'operator' => '=']
     ];
 
-    const UPDATE_REQUEST_ATTRIBUTES = [
+    private const UPDATE_REQUEST_ATTRIBUTES = [
         'name',
         'description'
     ];

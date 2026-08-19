@@ -13,7 +13,7 @@ use App\Repositories\PenaltyRepository;
 
 class PenaltyServices
 {
-    const SEARCH_REQUEST_ATTRIBUTES = [
+    private const SEARCH_REQUEST_ATTRIBUTES = [
         'borrowed_id' => ['column' => 'borrowed_id', 'operator' => '='],
         'member_id' => ['column' => 'member_id', 'operator' => '='],
         'amount' => ['column' => 'amount', 'operator' => '='],
@@ -27,7 +27,7 @@ class PenaltyServices
         'paid_after_at' => ['column' => 'paid_at', 'operator' => '>'],
     ];
 
-    const UPDATE_REQUEST_ATTRIBUTES = [
+    private const UPDATE_REQUEST_ATTRIBUTES = [
         'paid_at'
     ];
 

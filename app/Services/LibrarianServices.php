@@ -15,14 +15,14 @@ use Illuminate\Support\Facades\Hash;
 
 class LibrarianServices
 {
-    const SEARCH_REQUEST_ATTRIBUTES = [
+    private const SEARCH_REQUEST_ATTRIBUTES = [
         'name' => ['column' => 'name', 'operator' => '='],
         'email' => ['column' => 'email', 'operator' => '='],
         'phone' => ['column' => 'phone', 'operator' => '='],
         'address' => ['column' => 'address', 'operator' => '='],
     ];
 
-    const UPDATE_REQUEST_ATTRIBUTES = [
+    private const UPDATE_REQUEST_ATTRIBUTES = [
         'name',
         'email',
         'password',

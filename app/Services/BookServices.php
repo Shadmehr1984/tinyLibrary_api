@@ -14,7 +14,7 @@ use App\Repositories\BookRepository;
 
 class BookServices
 {
-    const SEARCH_REQUEST_ATTRIBUTES = [
+    private const SEARCH_REQUEST_ATTRIBUTES = [
         'title' => ['column' => 'title', 'operator' => '='],
         'author' => ['column' => 'author', 'operator' => '='],
         'isbn' => ['column' => 'isbn', 'operator' => '='],
@@ -33,7 +33,7 @@ class BookServices
         'location' => ['column' => 'location', 'operator' => '='],
     ];
 
-    const UPDATE_REQUEST_ATTRIBUTES = [
+    private const UPDATE_REQUEST_ATTRIBUTES = [
         'title',
         'author',
         'isbn',
