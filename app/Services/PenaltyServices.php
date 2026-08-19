@@ -8,6 +8,7 @@ use App\Domain\ValueObjects\Date;
 use App\Http\Requests\PenaltyDeleteRequest;
 use App\Http\Requests\PenaltyRequest;
 use App\Http\Requests\PenaltySearchRequest;
+use App\Http\Requests\PenaltyUpdateRequest;
 use App\Repositories\PenaltyRepository;
 
 class PenaltyServices
@@ -26,6 +27,10 @@ class PenaltyServices
         'paid_after_at' => ['column' => 'paid_at', 'operator' => '>'],
     ];
 
+    const UPDATE_REQUEST_ATTRIBUTES = [
+        'paid_at'
+    ];
+
     private static function convert_request_to_entity(PenaltyRequest $request): penalty
     {
         $builder = new PenaltyBuilder();
@@ -33,6 +38,19 @@ class PenaltyServices
         $entity = $builder->set_id(null)->set_amount($request->amount)->set_borrowed_id($request->borrowed_id)->set_calculated_at(Date::now())->set_member_id($request->member_id)->set_paid_at(null)->build();
 
         return $entity;
+    }
+
+    private static function take_update_attributes(PenaltyUpdateRequest $request): array
+    {
+        $attributes = [];
+        
+        foreach (static::UPDATE_REQUEST_ATTRIBUTES as $attribute) {
+            if ($request->$attribute != null){
+                $attributes[$attribute] = $request->$attribute;
+            }
+        }
+
+        return $attribute;
     }
 
     public static function add(PenaltyRequest $request)
@@ -53,6 +71,22 @@ class PenaltyServices
         $repository = new PenaltyRepository($entity);
 
         $repository->delete();
+    }
+
+    public static function update(PenaltyUpdateRequest $request)
+    {
+        $entity = PenaltyRepository::search([
+            ['target_member_id', '=', $request->member_id],
+            ['target_borrowed_id', '=', $request->borrowed_id]
+        ])[0];
+
+        $repository = new PenaltyRepository($entity);
+
+        $attributes = static::take_update_attributes($request);
+
+        $repository->update($attributes);
+
+        $repository->save();
     }
 
     public static function search(PenaltySearchRequest $request)
