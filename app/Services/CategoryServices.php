@@ -7,12 +7,18 @@ use App\Domain\Entities\Category;
 use App\Http\Requests\CategoryDeleteRequest;
 use App\Http\Requests\CategoryRequest;
 use App\Http\Requests\CategorySearchRequest;
+use App\Http\Requests\CategoryUpdateRequest;
 use App\Repositories\CategoryRepository;
 
 class CategoryServices{
     const SEARCH_REQUEST_ATTRIBUTES = [
         'name' => ['column' => 'name', 'operator' => '='],
         'description' => ['column' => 'description', 'operator' => '=']
+    ];
+
+    const UPDATE_REQUEST_ATTRIBUTES = [
+        'name',
+        'description'
     ];
 
     private static function convert_request_to_entity(CategoryRequest $request): Category{
@@ -24,6 +30,19 @@ class CategoryServices{
         build();
 
         return $entity;
+    }
+
+    private static function take_update_attributes(CategoryUpdateRequest $request): array
+    {
+        $attributes = [];
+        
+        foreach (static::UPDATE_REQUEST_ATTRIBUTES as $attribute) {
+            if ($request->$attribute != null){
+                $attributes[$attribute] = $request->$attribute;
+            }
+        }
+
+        return $attribute;
     }
 
     public static function add(CategoryRequest $request){
@@ -41,6 +60,21 @@ class CategoryServices{
         $repository = new CategoryRepository($entity);
 
         $repository->delete();
+    }
+
+    public static function update(CategoryUpdateRequest $request)
+    {
+        $entity = CategoryRepository::search([
+            ['id', '=', $request->target_id]
+        ])[0];
+
+        $repository = new CategoryRepository($entity);
+
+        $attributes = static::take_update_attributes($request);
+
+        $repository->update($attributes);
+
+        $repository->save();
     }
 
     public static function search(CategorySearchRequest $request)
