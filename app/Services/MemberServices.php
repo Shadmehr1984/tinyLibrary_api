@@ -10,6 +10,7 @@ use App\Domain\ValueObjects\Phone;
 use App\Http\Requests\MemberDeleteRequest;
 use App\Http\Requests\MemberRequest;
 use App\Http\Requests\MemberSearchRequest;
+use App\Http\Requests\MemberUpdateRequest;
 use App\Repositories\MemberRepository;
 use Illuminate\Support\Facades\Hash;
 
@@ -29,6 +30,15 @@ class MemberServices
         'penalty_balance_greater_than' => ['column' => 'penalty_balance', 'operator' => '>'],
     ];
 
+    const UPDATE_REQUEST_ATTRIBUTES = [
+        'name',
+        'email',
+        'password',
+        'phone',
+        'address',
+        'active'
+    ];
+
     private static function convert_request_to_entity(MemberRequest $request): Member
     {
         $builder = new MemberBuilder();
@@ -46,6 +56,19 @@ class MemberServices
         $repository->save();
     }
 
+    private static function take_update_attributes(MemberUpdateRequest $request): array
+    {
+        $attributes = [];
+        
+        foreach (static::UPDATE_REQUEST_ATTRIBUTES as $attribute) {
+            if ($request->$attribute != null){
+                $attributes[$attribute] = $request->$attribute;
+            }
+        }
+
+        return $attribute;
+    }
+
     public static function delete(MemberDeleteRequest $request)
     {
         $entity = MemberRepository::search([
@@ -55,6 +78,21 @@ class MemberServices
         $repository = new MemberRepository($entity);
 
         $repository->delete();
+    }
+
+    public static function update(MemberUpdateRequest $request)
+    {
+        $entity = MemberRepository::search([
+            ['email', '=', $request->email]
+        ])[0];
+
+        $repository = new MemberRepository($entity);
+
+        $attributes = static::take_update_attributes($request);
+
+        $repository->update($attributes);
+
+        $repository->save();
     }
 
     public static function search(MemberSearchRequest $request)
