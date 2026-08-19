@@ -9,6 +9,7 @@ use App\Domain\ValueObjects\Date;
 use App\Http\Requests\BorrowDeleteRequest;
 use App\Http\Requests\BorrowRequest;
 use App\Http\Requests\BorrowSearchRequest;
+use App\Http\Requests\BorrowUpdateRequest;
 use App\Repositories\BorrowRepository;
 
 class BorrowServices
@@ -31,6 +32,13 @@ class BorrowServices
         'penalty_amount_greater_than' => ['column' => 'penalty_amount', 'operator' => '>'],
     ];
 
+    const UPDATE_REQUEST_ATTRIBUTES = [
+        'due_date',
+            'returned_at',
+            'status',
+            'penalty_amount'
+    ];
+
     private static function convert_request_to_entity(BorrowRequest $request): Borrow
     {
         $builder = new BorrowBuilder();
@@ -38,6 +46,19 @@ class BorrowServices
         $entity = $builder->set_id(null)->set_book_id($request->book_id)->set_borrowed_at(new Date($request->borrowed_at))->set_due_date(null)->set_member_id($request->member_id)->set_penalty_amount(0)->set_returned_at(null)->set_status(BorrowStatus::borrowed)->build();
 
         return $entity;
+    }
+
+    private static function take_update_attributes(BorrowUpdateRequest $request): array
+    {
+        $attributes = [];
+        
+        foreach (static::UPDATE_REQUEST_ATTRIBUTES as $attribute) {
+            if ($request->$attribute != null){
+                $attributes[$attribute] = $request->$attribute;
+            }
+        }
+
+        return $attribute;
     }
 
     public static function add(BorrowRequest $request)
@@ -59,6 +80,23 @@ class BorrowServices
         $repository = new BorrowRepository($entity);
 
         $repository->delete();
+    }
+
+    public static function update(BorrowUpdateRequest $request)
+    {
+        $entity = BorrowRepository::search([
+            ['member_id', '=', $request->member_id],
+            ['book_id', '=', $request->book_id],
+            ['borrowed_at', '=', $request->borrowed_at]
+        ])[0];
+
+        $repository = new BorrowRepository($entity);
+
+        $attributes = static::take_update_attributes($request);
+
+        $repository->update($attributes);
+
+        $repository->save();
     }
 
     public static function search(BorrowSearchRequest $request)
