@@ -85,9 +85,9 @@ class BorrowServices
     public static function update(BorrowUpdateRequest $request)
     {
         $entity = BorrowRepository::search([
-            ['member_id', '=', $request->member_id],
-            ['book_id', '=', $request->book_id],
-            ['borrowed_at', '=', $request->borrowed_at]
+            ['target_member_id', '=', $request->member_id],
+            ['target_book_id', '=', $request->book_id],
+            ['target_borrowed_at', '=', $request->borrowed_at]
         ])[0];
 
         $repository = new BorrowRepository($entity);

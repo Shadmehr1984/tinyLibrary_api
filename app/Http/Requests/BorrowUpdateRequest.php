@@ -25,12 +25,12 @@ class BorrowUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'member_id' => ['required', 'integer', 'gt:0'],
-            'book_id' => ['required', 'integer', 'gt:0'],
-            'borrowed_at' => [
+            'target_member_id' => ['required', 'integer', 'gt:0'],
+            'target_book_id' => ['required', 'integer', 'gt:0'],
+            'target_borrowed_at' => [
                 'required',
                 new Date,
-                Rule::exists('borrows')->where('member_id', $this->member_id)->where('book_id', $this->book_id)
+                Rule::exists('borrows', 'borrowed_at')->where('member_id', $this->target_member_id)->where('book_id', $this->target_book_id)
             ],
             'due_date' => ['nullable', new Date],
             'returned_at' => ['nullable', new Date],
