@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\BookDeleteRequest;
 use App\Http\Requests\BookRequest;
 use App\Http\Requests\BookSearchRequest;
+use App\Http\Requests\BookUpdateRequest;
 use App\Http\Requests\CategoryRequest;
 use App\Http\Requests\MemberActivateRequest;
 use App\Http\Requests\MemberDeactivateRequest;
@@ -46,6 +47,15 @@ class LibrarianController extends Controller
 
         return response()->json([
             'books' => $books
+        ]);
+    }
+
+    public function update_book(BookUpdateRequest $request){
+        BookServices::update($request);
+
+        return response()->json([
+            'status-code' => 200,
+            'message' => 'book updated'
         ]);
     }
 

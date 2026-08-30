@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\BookIsbnNotExistsRule;
 use App\Rules\Date;
 use App\Rules\Isbn;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -29,7 +30,7 @@ class BookUpdateRequest extends FormRequest
             'target_isbn' => ['required', new Isbn, 'exists:books'],
             'title' => ['nullable', 'string'],
             'author' => ['nullable', 'string'],
-            'isbn' => ['nullable', new Isbn, Rule::unique('books')],
+            'isbn' => ['nullable', new Isbn, new BookIsbnNotExistsRule],
             'published' => ['nullable', new Date],
             'publisher' => ['nullable', Rule::string()],
             'category_id' => ['nullable', 'integer', 'gt:0', 'exists:categories,id'],
