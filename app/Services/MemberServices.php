@@ -7,6 +7,7 @@ use App\Domain\Entities\Member;
 use App\Domain\ValueObjects\Date;
 use App\Domain\ValueObjects\Email;
 use App\Domain\ValueObjects\Phone;
+use App\Http\Requests\MemberDeactivateRequest;
 use App\Http\Requests\MemberDeleteRequest;
 use App\Http\Requests\MemberRequest;
 use App\Http\Requests\MemberSearchRequest;
@@ -107,5 +108,17 @@ class MemberServices
         $entities = MemberRepository::search($attributes);
 
         return $entities;
+    }
+
+    public static function deactivate(MemberDeactivateRequest $request){
+        $entity = MemberRepository::search([
+            ['email', '=', $request->email]
+        ])[0];
+
+        $repository = new MemberRepository($entity);
+
+        $repository->update(['active' => false]);
+
+        $repository->save();
     }
 }
