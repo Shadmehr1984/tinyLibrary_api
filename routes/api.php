@@ -86,3 +86,5 @@ Route::post('/v1/add_category', [LibrarianController::class, 'add_category'])->m
 Route::delete('/v1/delete_category', [LibrarianController::class, 'delete_category'])->middleware('auth:librarian');
 //!
 Route::post('/v1/search_category', [LibrarianController::class, 'search_category'])->middleware('auth:librarian');
+//!
+Route::put('/v1/update_category', [LibrarianController::class, 'update_category'])->middleware('auth:librarian');

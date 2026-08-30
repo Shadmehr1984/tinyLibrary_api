@@ -10,6 +10,7 @@ use App\Http\Requests\BookUpdateRequest;
 use App\Http\Requests\CategoryDeleteRequest;
 use App\Http\Requests\CategoryRequest;
 use App\Http\Requests\CategorySearchRequest;
+use App\Http\Requests\CategoryUpdateRequest;
 use App\Http\Requests\MemberActivateRequest;
 use App\Http\Requests\MemberDeactivateRequest;
 use App\Http\Requests\MemberDeleteRequest;
@@ -155,6 +156,15 @@ class LibrarianController extends Controller
         return response()->json([
             'status-code' => 200,
             'categories' => $categories
+        ]);
+    }
+
+    public function update_category(CategoryUpdateRequest $request){
+        CategoryServices::update($request);
+
+        return response()->json([
+            'status-code' => 200,
+            'message' => 'category updated'
         ]);
     }
 }

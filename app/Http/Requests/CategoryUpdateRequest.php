@@ -23,7 +23,7 @@ class CategoryUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'target_id' => ['required', 'integer', 'gt:0'],
+            'target_id' => ['required', 'integer', 'gt:0', 'exists:categories,id'],
             'name' => ['nullable', 'string'],
             'description' => ['nullable', 'string', 'min:10']
         ];
