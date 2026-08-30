@@ -78,7 +78,7 @@ class BookServices
 
     public static function delete(BookDeleteRequest $request)
     {
-        $entity = BookRepository::search([['isbn', '=', $request->isbn->__toString()]])[0];
+        $entity = BookRepository::search([['isbn', '=', $request->isbn]])[0];
 
         $repository = new BookRepository($entity);
 
