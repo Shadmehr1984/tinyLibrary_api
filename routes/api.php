@@ -1,6 +1,7 @@
 <?php
 
 use App\Domain\ValueObjects\ISBN;
+use App\Http\Controllers\LibrarianController;
 use App\Http\Requests\BookRequest;
 use App\Http\Requests\BookSearchRequest;
 use App\Http\Requests\CategorySearchRequest;
@@ -58,3 +59,8 @@ Route::post('/test', function(LibrarianSearchRequest $request){
         'data' => $data,
     ]);
 })->middleware('auth:librarian');
+
+// librarian controller
+Route::post('/v1/add_book', [LibrarianController::class, 'add_book'])->middleware('auth:librarian');
+
+Route::post('/v1/delete_book', [LibrarianController::class, 'delete_book'])->middleware('auth:librarian');
