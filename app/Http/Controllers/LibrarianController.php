@@ -12,6 +12,7 @@ use App\Http\Requests\MemberActivateRequest;
 use App\Http\Requests\MemberDeactivateRequest;
 use App\Http\Requests\MemberDeleteRequest;
 use App\Http\Requests\MemberRequest;
+use App\Http\Requests\MemberSearchRequest;
 use App\Services\BookServices;
 use App\Services\CategoryServices;
 use App\Services\MemberServices;
@@ -92,6 +93,20 @@ class LibrarianController extends Controller
 
         return response()->json([
             'message' => 'member deleted'
+        ]);
+    }
+
+    public function search_member(MemberSearchRequest $request){
+        $member_entities = MemberServices::search($request);
+
+        $members = [];
+
+        foreach ($member_entities as $entity) {
+            $members[] = $entity->get();
+        }
+
+        return response()->json([
+            'members' => $members
         ]);
     }
 
