@@ -63,6 +63,8 @@ Route::post('/test', function(LibrarianSearchRequest $request){
 // librarian controller
 Route::post('/v1/add_book', [LibrarianController::class, 'add_book'])->middleware('auth:librarian');
 
-Route::post('/v1/delete_book', [LibrarianController::class, 'delete_book'])->middleware('auth:librarian');
+Route::delete('/v1/delete_book', [LibrarianController::class, 'delete_book'])->middleware('auth:librarian');
 
 Route::post('/v1/add_member', [LibrarianController::class, 'add_member'])->middleware('auth:librarian');
+
+Route::put('/v1/deactivate_member', [LibrarianController::class, 'deactivate_member'])->middleware('auth:librarian');
