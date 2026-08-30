@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\MemberEmailNotExists;
 use App\Rules\Phone;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -26,7 +27,7 @@ class MemberRequest extends FormRequest
     {
         return [
             'name' => ['required', Rule::string()->min(2)],
-            'email' => ['required', Rule::email()],
+            'email' => ['required', Rule::email(), new MemberEmailNotExists],
             'password' => ['required', Rule::string()->min(8)],
             'phone' => ['required', new Phone],
             'address' => ['required', Rule::string()],
