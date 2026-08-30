@@ -9,6 +9,7 @@ use App\Http\Requests\BookSearchRequest;
 use App\Http\Requests\BookUpdateRequest;
 use App\Http\Requests\CategoryDeleteRequest;
 use App\Http\Requests\CategoryRequest;
+use App\Http\Requests\CategorySearchRequest;
 use App\Http\Requests\MemberActivateRequest;
 use App\Http\Requests\MemberDeactivateRequest;
 use App\Http\Requests\MemberDeleteRequest;
@@ -139,6 +140,21 @@ class LibrarianController extends Controller
         return response()->json([
             'status-code' => 200,
             'message' => 'category deleted'
+        ]);
+    }
+
+    public function search_category(CategorySearchRequest $request){
+        $category_entities = CategoryServices::search($request);
+
+        $categories = [];
+
+        foreach ($category_entities as $entity) {
+            $categories[] = $entity->get();
+        }
+
+        return response()->json([
+            'status-code' => 200,
+            'categories' => $categories
         ]);
     }
 }
