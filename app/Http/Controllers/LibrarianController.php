@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BookDeleteRequest;
 use App\Http\Requests\BookRequest;
+use App\Http\Requests\MemberRequest;
 use App\Services\BookServices;
+use App\Services\MemberServices;
 use Illuminate\Http\Request;
 
 class LibrarianController extends Controller
@@ -25,6 +27,15 @@ class LibrarianController extends Controller
         return response()->json([
             'status-code' => 200,
             'message' => 'book deleted'
+        ]);
+    }
+
+    public function add_member(MemberRequest $request){
+        MemberServices::add($request);
+
+        return response()->json([
+            'status-code' => 201,
+            'message' => 'member created'
         ]);
     }
 }
