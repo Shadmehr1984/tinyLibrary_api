@@ -10,6 +10,7 @@ use App\Http\Requests\BookUpdateRequest;
 use App\Http\Requests\CategoryRequest;
 use App\Http\Requests\MemberActivateRequest;
 use App\Http\Requests\MemberDeactivateRequest;
+use App\Http\Requests\MemberDeleteRequest;
 use App\Http\Requests\MemberRequest;
 use App\Services\BookServices;
 use App\Services\CategoryServices;
@@ -83,6 +84,14 @@ class LibrarianController extends Controller
         return response()->json([
             'status-code' => 200,
             'message' => 'member activated'
+        ]);
+    }
+
+    public function delete_member(MemberDeleteRequest $request){
+        MemberServices::delete($request);
+
+        return response()->json([
+            'message' => 'member deleted'
         ]);
     }
 

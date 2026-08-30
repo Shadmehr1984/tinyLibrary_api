@@ -75,4 +75,6 @@ Route::put('/v1/deactivate_member', [LibrarianController::class, 'deactivate_mem
 //!
 Route::put('/v1/activate_member', [LibrarianController::class, 'activate_member'])->middleware('auth:librarian');
 //!
+Route::delete('/v1/delete_member', [LibrarianController::class, 'delete_member'])->middleware('auth:librarian');
+//!
 Route::post('/v1/add_category', [LibrarianController::class, 'add_category'])->middleware('auth:librarian');
