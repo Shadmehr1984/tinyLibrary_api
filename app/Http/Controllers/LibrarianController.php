@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BookDeleteRequest;
 use App\Http\Requests\BookRequest;
+use App\Http\Requests\MemberActivateRequest;
 use App\Http\Requests\MemberDeactivateRequest;
 use App\Http\Requests\MemberRequest;
 use App\Services\BookServices;
@@ -46,6 +47,15 @@ class LibrarianController extends Controller
         return response()->json([
             'status-code' => 200,
             'message' => 'member deactivated'
+        ]);
+    }
+
+    public function activate_member(MemberActivateRequest $request){
+        MemberServices::activate($request);
+
+        return response()->json([
+            'status-code' => 200,
+            'message' => 'member activated'
         ]);
     }
 }
