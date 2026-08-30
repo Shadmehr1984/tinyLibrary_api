@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BookDeleteRequest;
 use App\Http\Requests\BookRequest;
+use App\Http\Requests\BookSearchRequest;
 use App\Http\Requests\CategoryRequest;
 use App\Http\Requests\MemberActivateRequest;
 use App\Http\Requests\MemberDeactivateRequest;
@@ -31,6 +32,20 @@ class LibrarianController extends Controller
         return response()->json([
             'status-code' => 200,
             'message' => 'book deleted'
+        ]);
+    }
+
+    public function search_book(BookSearchRequest $request){
+        $book_entities = BookServices::search($request);
+
+        $books = [];
+
+        foreach ($book_entities as $entity) {
+            $books[] = $entity->get();
+        }
+
+        return response()->json([
+            'books' => $books
         ]);
     }
 
