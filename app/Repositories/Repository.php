@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repositories;
 
 use App\Domain\Builders\Builder;
@@ -44,10 +46,12 @@ class Repository implements RepositoryInterface
 
     public function update(array $attributes)
     {
+        $this->convert_db_format_2_type_class(attributes: $attributes);
         $this->entity->set($attributes);
         foreach ($attributes as $key => $value) {
             $this->attributes[$key] = $value;
         }
+        $this->convert_type_class_2_db_format($attributes);
     }
 
     public function change(Entity $entity)
@@ -104,7 +108,7 @@ class Repository implements RepositoryInterface
         return $builder->build();
     }
 
-    protected static function convert_db_format_2_type_class(Model $model = null, array $attributes = null)
+    protected static function convert_db_format_2_type_class(Model $model = null, array &$attributes = null)
     {
         if ($model) {
             foreach (static::$attributes_special_type as $name => $type_class) {
@@ -118,6 +122,7 @@ class Repository implements RepositoryInterface
             }
         } else if ($attributes) {
             foreach (static::$attributes_special_type as $name => $type_class) {
+                if (!isset($attributes[$name])) continue;
                 try {
                     $attributes[$name] = new $type_class($attributes[$name]);
                 } catch (Error $error) {
@@ -132,7 +137,7 @@ class Repository implements RepositoryInterface
     protected static function convert_type_class_2_db_format(array $attributes)
     {
         foreach (static::$attributes_special_type as $name => $type_class) {
-            if (!$attributes[$name]) continue;
+            if (!isset($attributes[$name])) continue;
             try {
                 $attributes[$name] = $attributes[$name]->__toString();
             } catch (Error $error) {
