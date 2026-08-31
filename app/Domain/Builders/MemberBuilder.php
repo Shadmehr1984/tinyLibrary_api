@@ -66,13 +66,19 @@ class MemberBuilder extends Builder
         return $this;
     }
 
-    public function set_active(bool $active)
+    public function set_active(bool|int $active)
     {
+        if (gettype($active) == 'integer'){
+            if (!in_array($active, [0, 1])){
+                throw new \InvalidArgumentException("active must be 0 or 1");
+            }
+            $active = $active == 1 ? true : false;
+        }
         $this->active = $this->set_attribute($active, 'active');
         return $this;
     }
 
-    public function set_penalty_balance(bool $penalty_balance)
+    public function set_penalty_balance(int $penalty_balance)
     {
         $this->penalty_balance = $this->set_attribute($penalty_balance, 'penalty_balance');
         return $this;
