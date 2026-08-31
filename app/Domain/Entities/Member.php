@@ -29,11 +29,11 @@ class Member extends Entity
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'email' => $this->email,
+            'email' => $this->pure_value ? $this->email->get() : $this->email,
             'password' => $this->password,
-            'phone' => $this->phone,
+            'phone' => $this->pure_value ? $this->phone->get() : $this->phone,
             'address' => $this->address,
-            'membership_date' => $this->membership_date,
+            'membership_date' => $this->pure_value ? $this->membership_date->get() : $this->membership_date,
             'active' => $this->active,
             'penalty_balance' => $this->penalty_balance
         ];

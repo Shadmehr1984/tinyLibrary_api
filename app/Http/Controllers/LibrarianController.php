@@ -48,11 +48,8 @@ class LibrarianController extends Controller
         $books = [];
 
         foreach ($book_entities as $entity) {
-            $book = $entity->get();
-            $book['isbn'] = $book['isbn']->get();
-            $book['published'] = $book['published']->get();
-
-            $books[] = $book;
+            $entity->pure_value(true);
+            $books[] = $entity->get();
         }
 
         return response()->json([
@@ -112,7 +109,10 @@ class LibrarianController extends Controller
         $members = [];
 
         foreach ($member_entities as $entity) {
-            $members[] = $entity->get();
+            $entity->pure_value(true);
+            $member = $entity->get();
+            unset($member['password']);
+            $members[] = $member;
         }
 
         return response()->json([

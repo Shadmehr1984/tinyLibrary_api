@@ -22,9 +22,9 @@ class Librarian extends Entity
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'email' => $this->email,
+            'email' => $this->pure_value ? $this->email->get() : $this->email,
             'password' => $this->password,
-            'phone' => $this->phone,
+            'phone' => $this->pure_value ? $this->phone->get() : $this->phone,
             'address' => $this->address
         ];
     }

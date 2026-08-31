@@ -21,13 +21,23 @@ class penalty extends Entity
 
     public function get()
     {
+        //set paid_at value
+        $paid_at = null;
+        if ($this->paid_at != null) {
+            if ($this->pure_value) {
+                $paid_at = $this->paid_at->get();
+            }
+            else {
+                $paid_at = $this->paid_at;
+            }
+        }
         return [
             'id' => $this->id,
             'borrowed_id' => $this->borrowed_id,
             'member_id' => $this->member_id,
             'amount' => $this->amount,
-            'calculated_at' => $this->calculated_at,
-            'paid_at' => $this->paid_at
+            'calculated_at' => $this->pure_value ? $this->calculated_at->get() : $this->calculated_at,
+            'paid_at' => $paid_at
         ];
     }
 }

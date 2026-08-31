@@ -25,10 +25,10 @@ class Borrow extends Entity
             'id' => $this->id,
             'member_id' => $this->member_id,
             'book_id' => $this->book_id,
-            'borrowed_at' => $this->borrowed_at,
-            'due_date' => $this->due_date,
-            'returned_at' => $this->returned_at,
-            'status' => $this->status,
+            'borrowed_at' => $this->pure_value ? $this->borrowed_at->get() : $this->borrowed_at,
+            'due_date' => $this->pure_value ? $this->due_date->get() : $this->due_date,
+            'returned_at' => $this->pure_value ? $this->returned_at->get() : $this->returned_at,
+            'status' => $this->pure_value ? $this->status->name : $this->status,
             'penalty_amount' => $this->penalty_amount
         ];
     }
