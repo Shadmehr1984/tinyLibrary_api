@@ -48,7 +48,11 @@ class LibrarianController extends Controller
         $books = [];
 
         foreach ($book_entities as $entity) {
-            $books[] = $entity->get();
+            $book = $entity->get();
+            $book['isbn'] = $book['isbn']->get();
+            $book['published'] = $book['published']->get();
+
+            $books[] = $book;
         }
 
         return response()->json([
