@@ -65,7 +65,7 @@ class BookServices
             }
         }
 
-        return $attribute;
+        return $attributes;
     }
 
     public static function add(BookRequest $request)
@@ -89,7 +89,7 @@ class BookServices
 
     public static function update(BookUpdateRequest $request)
     {
-        $entity = BookRepository::search([['isbn', '=', $request->target_isbn->__toString()]])[0];
+        $entity = BookRepository::search([['isbn', '=', $request->target_isbn]])[0];
 
         $repository = new BookRepository($entity);
 

@@ -27,7 +27,7 @@ class BookUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'target_isbn' => ['required', new Isbn, 'exists:books'],
+            'target_isbn' => ['required', new Isbn, 'exists:books,isbn'],
             'title' => ['nullable', 'string'],
             'author' => ['nullable', 'string'],
             'isbn' => ['nullable', new Isbn, new BookIsbnNotExistsRule],
