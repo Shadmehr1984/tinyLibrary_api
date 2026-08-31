@@ -65,7 +65,7 @@ class CategoryServices{
     public static function update(CategoryUpdateRequest $request)
     {
         $entity = CategoryRepository::search([
-            ['target_id', '=', $request->target_id]
+            ['id', '=', $request->target_id]
         ])[0];
 
         $repository = new CategoryRepository($entity);

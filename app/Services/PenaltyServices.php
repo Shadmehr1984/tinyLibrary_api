@@ -76,8 +76,8 @@ class PenaltyServices
     public static function update(PenaltyUpdateRequest $request)
     {
         $entity = PenaltyRepository::search([
-            ['target_member_id', '=', $request->member_id],
-            ['target_borrowed_id', '=', $request->borrowed_id]
+            ['member_id', '=', $request->target_member_id],
+            ['borrowed_id', '=', $request->target_borrowed_id]
         ])[0];
 
         $repository = new PenaltyRepository($entity);

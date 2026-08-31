@@ -78,7 +78,7 @@ class LibrarianServices
     public static function update(LibrarianUpdateRequest $request)
     {
         $entity = LibrarianRepository::search([
-            ['target_email', '=', $request->email]
+            ['email', '=', $request->target_email]
         ])[0];
 
         $repository = new LibrarianRepository($entity);
