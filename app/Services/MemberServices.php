@@ -68,7 +68,7 @@ class MemberServices
             }
         }
 
-        return $attribute;
+        return $attributes;
     }
 
     public static function delete(MemberDeleteRequest $request)

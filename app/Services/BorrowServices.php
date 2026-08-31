@@ -58,7 +58,7 @@ class BorrowServices
             }
         }
 
-        return $attribute;
+        return $attributes;
     }
 
     public static function add(BorrowRequest $request)

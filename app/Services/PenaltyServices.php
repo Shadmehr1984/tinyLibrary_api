@@ -50,7 +50,7 @@ class PenaltyServices
             }
         }
 
-        return $attribute;
+        return $attributes;
     }
 
     public static function add(PenaltyRequest $request)

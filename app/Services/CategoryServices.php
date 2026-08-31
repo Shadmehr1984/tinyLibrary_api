@@ -42,7 +42,7 @@ class CategoryServices{
             }
         }
 
-        return $attribute;
+        return $attributes;
     }
 
     public static function add(CategoryRequest $request){

@@ -53,7 +53,7 @@ class LibrarianServices
             $attribute['password'] = Hash::make($attribute['password']);
         }
 
-        return $attribute;
+        return $attributes;
     }
 
     public static function add(LibrarianRequest $request)
