@@ -22,7 +22,7 @@ class Phone{
         $phone_characters = str_split($phone);
 
         if ($phone_characters[0] != '+'){
-            throw new \InvalidArgumentException('phone should start with +');
+            throw new \InvalidArgumentException("phone should start with +, value:{$phone}");
         }
 
         for ($i=1; $i < $phone_size; $i++) { 
