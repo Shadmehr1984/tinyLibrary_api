@@ -46,17 +46,10 @@ Route::get('/test/book', function(){
     ]);
 });
 
-Route::post('/test', function(LibrarianSearchRequest $request){
-    $result = LibrarianServices::search($request);
-
-    $data = [];
-
-    foreach ($result as $entity) {
-        $data[] = $entity->get();
-    }
-
+Route::get('/test', function(Request $request){
+    $person = auth()->user();
     return response()->json([
-        'data' => $data,
+        'person' => $person
     ]);
 })->middleware('auth:librarian');
 
@@ -82,9 +75,11 @@ Route::post('/v1/search_member', [LibrarianController::class, 'search_member'])-
 Route::put('/v1/update_member', [LibrarianController::class, 'update_member'])->middleware('auth:librarian');
 
 Route::post('/v1/add_category', [LibrarianController::class, 'add_category'])->middleware('auth:librarian');
-//!
+
 Route::delete('/v1/delete_category', [LibrarianController::class, 'delete_category'])->middleware('auth:librarian');
-//!
+
 Route::post('/v1/search_category', [LibrarianController::class, 'search_category'])->middleware('auth:librarian');
-//!
+
 Route::put('/v1/update_category', [LibrarianController::class, 'update_category'])->middleware('auth:librarian');
+
+// member controller
