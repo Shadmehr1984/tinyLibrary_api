@@ -17,7 +17,7 @@ class MemberEmailNotExists implements ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         $email = DB::table('members')->select(['email'])->where('email', '=', $value)->get();
-        if($email){
+        if(sizeof($email) != 0){
             $fail('email '.$value.' already exists');
         }
     }

@@ -2,6 +2,7 @@
 
 use App\Domain\ValueObjects\ISBN;
 use App\Http\Controllers\LibrarianController;
+use App\Http\Controllers\MemberController;
 use App\Http\Requests\BookRequest;
 use App\Http\Requests\BookSearchRequest;
 use App\Http\Requests\CategorySearchRequest;
@@ -58,3 +59,7 @@ Route::post('/v1/librarian/search_category', [LibrarianController::class, 'searc
 Route::put('/v1/librarian/update_category', [LibrarianController::class, 'update_category'])->middleware('auth:librarian');
 
 // member controller
+
+Route::post('/v1/member/login', [MemberController::class, 'login']);
+
+Route::post('/v1/member/logout', [MemberController::class, 'logout'])->middleware('auth:member');
