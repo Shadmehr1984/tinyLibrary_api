@@ -11,20 +11,58 @@ use App\Http\Requests\CategoryDeleteRequest;
 use App\Http\Requests\CategoryRequest;
 use App\Http\Requests\CategorySearchRequest;
 use App\Http\Requests\CategoryUpdateRequest;
+use App\Http\Requests\LibrarianLoginRequest;
 use App\Http\Requests\MemberActivateRequest;
 use App\Http\Requests\MemberDeactivateRequest;
 use App\Http\Requests\MemberDeleteRequest;
 use App\Http\Requests\MemberRequest;
 use App\Http\Requests\MemberSearchRequest;
 use App\Http\Requests\MemberUpdateRequest;
+use App\Models\Librarian;
 use App\Services\BookServices;
 use App\Services\CategoryServices;
 use App\Services\MemberServices;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use PharIo\Manifest\Library;
 
 class LibrarianController extends Controller
 {
-    public function add_book(BookRequest $request){
+    public function login(LibrarianLoginRequest $request)
+    {
+        $librarian = Librarian::all()->where('email', '=', $request->email)->first();
+        if (!$librarian || !Hash::check($request->password, $librarian->password)) {
+            return response()->json([
+                'massage' => 'invalid email or password'
+            ]);
+        }
+
+        $token = $librarian->createToken('librarian-token')->plainTextToken;
+
+        return response()->json([
+            'massage' => 'successful login, welcome ' . $librarian->name,
+            'librarian' => $librarian,
+            'token' => $token
+        ]);
+    }
+
+    public function logout()
+    {
+        try{
+        $librarian = (Librarian::class)(auth()->user());
+        }
+        catch (\Throwable $th){
+            $librarian = auth()->user();
+        }
+        $librarian->currentAccessToken()->delete();
+
+        return response()->json([
+            'message' => 'successful logout'
+        ]);
+    }
+
+    public function add_book(BookRequest $request)
+    {
         BookServices::add($request);
 
         return response()->json([
@@ -33,7 +71,8 @@ class LibrarianController extends Controller
         ]);
     }
 
-    public function delete_book(BookDeleteRequest $request){
+    public function delete_book(BookDeleteRequest $request)
+    {
         BookServices::delete($request);
 
         return response()->json([
@@ -42,7 +81,8 @@ class LibrarianController extends Controller
         ]);
     }
 
-    public function search_book(BookSearchRequest $request){
+    public function search_book(BookSearchRequest $request)
+    {
         $book_entities = BookServices::search($request);
 
         $books = [];
@@ -58,7 +98,8 @@ class LibrarianController extends Controller
         ]);
     }
 
-    public function update_book(BookUpdateRequest $request){
+    public function update_book(BookUpdateRequest $request)
+    {
         BookServices::update($request);
 
         return response()->json([
@@ -67,7 +108,8 @@ class LibrarianController extends Controller
         ]);
     }
 
-    public function add_member(MemberRequest $request){
+    public function add_member(MemberRequest $request)
+    {
         MemberServices::add($request);
 
         return response()->json([
@@ -76,7 +118,8 @@ class LibrarianController extends Controller
         ]);
     }
 
-    public function deactivate_member(MemberDeactivateRequest $request){
+    public function deactivate_member(MemberDeactivateRequest $request)
+    {
         MemberServices::deactivate($request);
 
         return response()->json([
@@ -85,7 +128,8 @@ class LibrarianController extends Controller
         ]);
     }
 
-    public function activate_member(MemberActivateRequest $request){
+    public function activate_member(MemberActivateRequest $request)
+    {
         MemberServices::activate($request);
 
         return response()->json([
@@ -94,7 +138,8 @@ class LibrarianController extends Controller
         ]);
     }
 
-    public function delete_member(MemberDeleteRequest $request){
+    public function delete_member(MemberDeleteRequest $request)
+    {
         MemberServices::delete($request);
 
         return response()->json([
@@ -103,7 +148,8 @@ class LibrarianController extends Controller
         ]);
     }
 
-    public function search_member(MemberSearchRequest $request){
+    public function search_member(MemberSearchRequest $request)
+    {
         $member_entities = MemberServices::search($request);
 
         $members = [];
@@ -121,7 +167,8 @@ class LibrarianController extends Controller
         ]);
     }
 
-    public function update_member(MemberUpdateRequest $request){
+    public function update_member(MemberUpdateRequest $request)
+    {
         MemberServices::update($request);
 
         return response()->json([
@@ -130,7 +177,8 @@ class LibrarianController extends Controller
         ]);
     }
 
-    public function add_category(CategoryRequest $request){
+    public function add_category(CategoryRequest $request)
+    {
         CategoryServices::add($request);
 
         return response()->json([
@@ -139,7 +187,8 @@ class LibrarianController extends Controller
         ]);
     }
 
-    public function delete_category(CategoryDeleteRequest $request){
+    public function delete_category(CategoryDeleteRequest $request)
+    {
         CategoryServices::delete($request);
 
         return response()->json([
@@ -148,7 +197,8 @@ class LibrarianController extends Controller
         ]);
     }
 
-    public function search_category(CategorySearchRequest $request){
+    public function search_category(CategorySearchRequest $request)
+    {
         $category_entities = CategoryServices::search($request);
 
         $categories = [];
@@ -163,7 +213,8 @@ class LibrarianController extends Controller
         ]);
     }
 
-    public function update_category(CategoryUpdateRequest $request){
+    public function update_category(CategoryUpdateRequest $request)
+    {
         CategoryServices::update($request);
 
         return response()->json([

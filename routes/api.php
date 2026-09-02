@@ -14,46 +14,21 @@ use App\Services\BookServices;
 use App\Services\CategoryServices;
 use App\Services\LibrarianServices;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
-
 //tests
-Route::post('/test/login', function(Request $request){
-    $librarian = Librarian::all()->where('email', '=', $request->email)->first();
-    if (!$librarian || !Hash::check($request->password, $librarian->password)){
-        return response()->json([
-            'massage' => 'invalid email or password'
-        ]);
-    }
-
-    $token = $librarian->createToken('librarian-token')->plainTextToken;
-
-    return response()->json([
-        'massage' => 'successful login, welcome '.$librarian->name,
-        'librarian' => $librarian,
-        'token' => $token
-    ]);
-});
-
-Route::get('/test/book', function(){
-    $data = Book::all();
-    return response()->json([
-        'books' => $data
-    ]);
-});
 
 Route::get('/test', function(Request $request){
-    $person = auth()->user();
-    return response()->json([
-        'person' => $person
-    ]);
+
 })->middleware('auth:librarian');
 
 // librarian controller
+Route::post('/v1/librarian/login', [LibrarianController::class, 'login']);
+
+Route::post('/v1/librarian/logout', [LibrarianController::class, 'logout'])->middleware('auth:librarian');
+
 Route::post('/v1/add_book', [LibrarianController::class, 'add_book'])->middleware('auth:librarian');
 
 Route::delete('/v1/delete_book', [LibrarianController::class, 'delete_book'])->middleware('auth:librarian');
