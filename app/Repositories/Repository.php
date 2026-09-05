@@ -144,7 +144,6 @@ class Repository implements RepositoryInterface
             try {
                 $attributes[$name] = $attributes[$name]->__toString();
             } catch (Error $error) {
-                dump($attributes[$name]);//!
                 $attributes[$name] = $attributes[$name]->name;
             }
         }
