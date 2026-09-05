@@ -7,7 +7,9 @@ use App\Domain\Entities\Member;
 use App\Domain\ValueObjects\Date;
 use App\Domain\ValueObjects\Email;
 use App\Domain\ValueObjects\Phone;
+use App\Models\Borrow as BorrowModel;
 use App\Models\Member as MemberModel;
+use App\Repositories\Exceptions\MemberNotExistsException;
 
 class MemberRepository extends Repository{
     protected static $model_class = MemberModel::class;
@@ -22,6 +24,14 @@ class MemberRepository extends Repository{
     public function __construct(Member $member)
     {
         parent::__construct($member);
+    }
+
+    public static function member_borrows(int $member_id){
+        $member = MemberModel::where('id', '=', $member_id)->get();
+        if (sizeof($member) == 0){
+            throw new MemberNotExistsException($member_id);
+        }
+        return BorrowModel::where('member_id', '=', $member_id)->count();
     }
 }
 

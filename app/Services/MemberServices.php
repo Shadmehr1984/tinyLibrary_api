@@ -134,4 +134,8 @@ class MemberServices
 
         $repository->save();
     }
+
+    public static function member_borrows(int $member_id){
+        return MemberRepository::member_borrows($member_id);
+    }
 }
