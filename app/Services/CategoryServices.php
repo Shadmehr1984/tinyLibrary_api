@@ -86,7 +86,7 @@ class CategoryServices{
             $attributes[] = [$search_detail['column'], $search_detail['operator'], $request->$attribute];
         }
 
-        $entities = CategoryRepository::search($attributes);
+        $entities = CategoryRepository::search($attributes, $request->limit);
 
         return $entities;
     }

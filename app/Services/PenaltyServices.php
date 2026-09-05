@@ -98,7 +98,7 @@ class PenaltyServices
             $attributes[] = [$search_detail['column'], $search_detail['operator'], $request->$attribute];
         }
 
-        $entities = PenaltyRepository::search($attributes);
+        $entities = PenaltyRepository::search($attributes, $request->limit);
 
         return $entities;
     }

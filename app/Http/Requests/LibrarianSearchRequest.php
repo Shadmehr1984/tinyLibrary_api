@@ -29,6 +29,7 @@ class LibrarianSearchRequest extends FormRequest
             'email' => ['nullable', Rule::email()],
             'phone' => ['nullable', new Phone],
             'address' => ['nullable', Rule::string()],
+            'limit' => ['nullable', 'integer', 'gt:0'],
             '_check' => ['required_without_all:name,email,phone,address']
         ];
     }

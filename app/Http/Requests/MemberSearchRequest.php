@@ -37,6 +37,7 @@ class MemberSearchRequest extends FormRequest
             'penalty_balance' => ['nullable', 'integer', 'gt:0'],
             'penalty_balance_lower_than' => ['nullable', 'integer', 'gt:0'],
             'penalty_balance_greater_than' => ['nullable', 'integer', 'gt:0'],
+            'limit' => ['nullable', 'integer', 'gt:0'],
             '_check' => ['required_without_all:name,email,phone,address,membership_date,membership_date_before,'.
             'membership_date_after,active,penalty_balance']
         ];

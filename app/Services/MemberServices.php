@@ -106,7 +106,7 @@ class MemberServices
             $attributes[] = [$search_detail['column'], $search_detail['operator'], $request->$attribute];
         }
 
-        $entities = MemberRepository::search($attributes);
+        $entities = MemberRepository::search($attributes, $request->limit);
 
         return $entities;
     }

@@ -35,6 +35,7 @@ class PenaltySearchRequest extends FormRequest
             'paid_at' => ['nullable', new Date],
             'paid_before_at' => ['nullable', new Date],
             'paid_after_at' => ['nullable', new Date],
+            'limit' => ['nullable', 'integer', 'gt:0'],
             '_check' => ['required_without_all:borrowed_id,member_id,amount,amount_lower_than,amount_greater_than,'.
             'calculated_at,calculated_before_at,calculated_after_at,paid_at,paid_before_at,paid_after_at'] 
         ];

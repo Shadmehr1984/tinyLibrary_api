@@ -109,7 +109,7 @@ class BookServices
             $attributes[] = [$search_detail['column'], $search_detail['operator'], $request->$attribute];
         }
 
-        $entities = BookRepository::search($attributes);
+        $entities = BookRepository::search($attributes, $request->limit);
 
         return $entities;
     }

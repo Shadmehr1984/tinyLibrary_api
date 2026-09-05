@@ -108,7 +108,7 @@ class BorrowServices
             $attributes[] = [$search_detail['column'], $search_detail['operator'], $request->$attribute];
         }
 
-        $entities = BorrowRepository::search($attributes);
+        $entities = BorrowRepository::search($attributes, $request->limit);
 
         return $entities;
     }

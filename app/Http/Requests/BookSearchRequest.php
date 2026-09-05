@@ -42,6 +42,7 @@ class BookSearchRequest extends FormRequest
             'available_copies_greater_than' => ['nullable', 'integer', 'gt:0'],
             'description' => ['nullable', Rule::string()->min(10)->max(40)],
             'location' => ['nullable', Rule::string()],
+            'limit' => ['nullable', 'integer', 'gt:0'],
             '_check' => [
                 'required_without_all:title,author,isbn,published,published_before,published_after,publisher,category_id,total_copies,total_copies_lower_than,total_copies_greater_than,available_copies,available_copies_lower_than,available_copies_greater_than,description,location'
             ]

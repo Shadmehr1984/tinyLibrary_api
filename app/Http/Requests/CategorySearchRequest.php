@@ -26,6 +26,7 @@ class CategorySearchRequest extends FormRequest
         return [
             'name' => ['nullable', 'string'],
             'description' => ['nullable', Rule::string()->min(10)->max(40)],
+            'limit' => ['nullable', 'integer', 'gt:0'],
             '_check' => ['required_without_all:name,description']
         ];
     }

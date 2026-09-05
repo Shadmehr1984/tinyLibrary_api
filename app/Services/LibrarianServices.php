@@ -99,7 +99,7 @@ class LibrarianServices
             $attributes[] = [$search_detail['column'], $search_detail['operator'], $request->$attribute];
         }
 
-        $entities = LibrarianRepository::search($attributes);
+        $entities = LibrarianRepository::search($attributes, $request->limit);
 
         return $entities;
     }

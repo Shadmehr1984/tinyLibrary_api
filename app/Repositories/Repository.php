@@ -16,6 +16,7 @@ class Repository implements RepositoryInterface
     protected static $attributes_name = [];
     //[attribute_name => attribute type class]
     protected static $attributes_special_type = [];
+    protected static $default_search_limit = 50;
 
     protected Model $model;
     protected array $attributes;
@@ -62,11 +63,13 @@ class Repository implements RepositoryInterface
     }
 
     // $attributes: array[array[column, operator, value]]
-    public static function search(array $attributes)
+    public static function search(array $attributes, int $limit = null)
     {
         static::set_attributes_name();
 
-        $models = static::$model_class::select(['*'])->get();
+        $limit = $limit == null ? static::$default_search_limit : $limit;
+
+        $models = static::$model_class::select(['*'])->limit($limit)->get();
 
         foreach ($attributes as $attribute) {
             $models = $models->where($attribute[0], $attribute[1], $attribute[2]);
