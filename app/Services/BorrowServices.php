@@ -43,7 +43,7 @@ class BorrowServices
     {
         $builder = new BorrowBuilder();
 
-        $entity = $builder->set_id(null)->set_book_id($request->book_id)->set_borrowed_at(new Date($request->borrowed_at))->set_due_date(null)->set_member_id($request->member_id)->set_penalty_amount(0)->set_returned_at(null)->set_status(BorrowStatus::borrowed)->build();
+        $entity = $builder->set_id(null)->set_book_id($request->book_id)->set_borrowed_at(Date::now())->set_due_date(null)->set_member_id($request->member_id)->set_penalty_amount(0)->set_returned_at(null)->set_status(BorrowStatus::borrowed)->build();
 
         return $entity;
     }
