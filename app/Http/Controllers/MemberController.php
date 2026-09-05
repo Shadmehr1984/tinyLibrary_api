@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\BookSearchRequest;
+use App\Http\Requests\BorrowRequest;
 use App\Http\Requests\MemberLoginRequest;
 use App\Models\Member;
+use App\Services\BookServices;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -22,13 +25,15 @@ class MemberController extends Controller
         $token = $member->createToken('member-token')->plainTextToken;
 
         return response()->json([
+            'status-code' => 200,
             'massage' => 'successful login, welcome ' . $member->name,
             'member' => $member,
             'token' => $token
         ]);
     }
 
-    public function logout(){
+    public function logout()
+    {
         try {
             $member = (Member::class)(auth()->user());
         } catch (\Throwable $th) {
@@ -38,7 +43,29 @@ class MemberController extends Controller
         $member->currentAccessToken()->delete();
 
         return response()->json([
+            'status-code' => 200,
             'message' => "successful logout"
         ]);
+    }
+
+    public function search_book(BookSearchRequest $request)
+    {
+        $entities = BookServices::search($request);
+
+        $books = [];
+
+        foreach ($entities as $entity) {
+            $entity->pure_value(true);
+            $books[] = $entity->get();
+        }
+
+        return response()->json([
+            'status-code' => 200,
+            'books' => $books
+        ]);
+    }
+
+    public function add_borrow(BorrowRequest $request)
+    {
     }
 }

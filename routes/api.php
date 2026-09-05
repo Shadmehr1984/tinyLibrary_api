@@ -63,3 +63,7 @@ Route::put('/v1/librarian/update_category', [LibrarianController::class, 'update
 Route::post('/v1/member/login', [MemberController::class, 'login']);
 
 Route::post('/v1/member/logout', [MemberController::class, 'logout'])->middleware('auth:member');
+
+Route::post('/v1/member/search_book', [MemberController::class, 'search_book'])->middleware('auth:member');
+
+Route::post('/v1/member/add_borrow', [MemberController::class, 'add_borrow'])->middleware('auth:member');
