@@ -39,6 +39,8 @@ class BorrowServices
             'penalty_amount'
     ];
 
+    public const MAX_BORROWS_LIMIT = 3;
+
     private static function convert_request_to_entity(BorrowRequest $request): Borrow
     {
         $builder = new BorrowBuilder();

@@ -8,6 +8,8 @@ use App\Http\Requests\BorrowRequest;
 use App\Http\Requests\MemberLoginRequest;
 use App\Models\Member;
 use App\Services\BookServices;
+use App\Services\BorrowServices;
+use App\Services\MemberServices;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -67,5 +69,17 @@ class MemberController extends Controller
 
     public function add_borrow(BorrowRequest $request)
     {
+        if (MemberServices::member_borrows($request->member_id) >= BorrowServices::MAX_BORROWS_LIMIT){
+            return response()->json([
+                'status-code' => 403,
+                'message' => 'you reach max borrows limit'
+            ]);
+        }
+        BorrowServices::add($request);
+
+        return response()->json([
+            'status-code' => 201,
+            'message' => 'borrow book successful'
+        ]);
     }
 }
