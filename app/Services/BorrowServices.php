@@ -12,7 +12,7 @@ use App\Http\Requests\BorrowSearchRequest;
 use App\Http\Requests\BorrowUpdateRequest;
 use App\Repositories\BorrowRepository;
 
-class BorrowServices
+class BorrowServices extends Service
 {
     private const SEARCH_REQUEST_ATTRIBUTES = [
         'member_id' => ['column' => 'member_id', 'operator' => '='],

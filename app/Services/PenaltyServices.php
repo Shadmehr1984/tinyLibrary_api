@@ -11,7 +11,7 @@ use App\Http\Requests\PenaltySearchRequest;
 use App\Http\Requests\PenaltyUpdateRequest;
 use App\Repositories\PenaltyRepository;
 
-class PenaltyServices
+class PenaltyServices extends Service
 {
     private const SEARCH_REQUEST_ATTRIBUTES = [
         'borrowed_id' => ['column' => 'borrowed_id', 'operator' => '='],

@@ -12,11 +12,11 @@ use App\Http\Requests\BookSearchRequest;
 use App\Http\Requests\BookUpdateRequest;
 use App\Repositories\BookRepository;
 
-class BookServices
+class BookServices extends Service
 {
     private const SEARCH_REQUEST_ATTRIBUTES = [
-        'title' => ['column' => 'title', 'operator' => '='],
-        'author' => ['column' => 'author', 'operator' => '='],
+        'title' => ['column' => 'title', 'operator' => 'LIKE'],
+        'author' => ['column' => 'author', 'operator' => 'LIKE'],
         'isbn' => ['column' => 'isbn', 'operator' => '='],
         'published' => ['column' => 'published', 'operator' => '='],
         'published_before' => ['column' => 'published', 'operator' => '<'],
@@ -106,7 +106,9 @@ class BookServices
 
         foreach (static::SEARCH_REQUEST_ATTRIBUTES as $attribute => $search_detail) {
             if ($request->$attribute == null) continue;
-            $attributes[] = [$search_detail['column'], $search_detail['operator'], $request->$attribute];
+            $attribute_value = $request->$attribute;
+            if ($search_detail['operator'] == 'LIKE') $attribute_value = static::fix_str_like_op($attribute_value);
+            $attributes[] = [$search_detail['column'], $search_detail['operator'], $attribute_value];
         }
 
         $entities = BookRepository::search($attributes, $request->limit);

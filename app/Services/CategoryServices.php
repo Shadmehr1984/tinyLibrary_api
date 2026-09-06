@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Services;
 
@@ -10,10 +10,11 @@ use App\Http\Requests\CategorySearchRequest;
 use App\Http\Requests\CategoryUpdateRequest;
 use App\Repositories\CategoryRepository;
 
-class CategoryServices{
+class CategoryServices extends Service
+{
     private const SEARCH_REQUEST_ATTRIBUTES = [
-        'name' => ['column' => 'name', 'operator' => '='],
-        'description' => ['column' => 'description', 'operator' => '=']
+        'name' => ['column' => 'name', 'operator' => 'LIKE'],
+        'description' => ['column' => 'description', 'operator' => 'LIKE']
     ];
 
     private const UPDATE_REQUEST_ATTRIBUTES = [
@@ -21,13 +22,11 @@ class CategoryServices{
         'description'
     ];
 
-    private static function convert_request_to_entity(CategoryRequest $request): Category{
+    private static function convert_request_to_entity(CategoryRequest $request): Category
+    {
         $builder = new CategoryBuilder();
 
-        $entity = $builder->set_id(null)->
-        set_description($request->description)->
-        set_name($request->name)->
-        build();
+        $entity = $builder->set_id(null)->set_description($request->description)->set_name($request->name)->build();
 
         return $entity;
     }
@@ -35,9 +34,9 @@ class CategoryServices{
     private static function take_update_attributes(CategoryUpdateRequest $request): array
     {
         $attributes = [];
-        
+
         foreach (static::UPDATE_REQUEST_ATTRIBUTES as $attribute) {
-            if ($request->$attribute != null){
+            if ($request->$attribute != null) {
                 $attributes[$attribute] = $request->$attribute;
             }
         }
@@ -45,14 +44,16 @@ class CategoryServices{
         return $attributes;
     }
 
-    public static function add(CategoryRequest $request){
+    public static function add(CategoryRequest $request)
+    {
         $entity = CategoryServices::convert_request_to_entity($request);
 
         $repository = new CategoryRepository($entity);
         $repository->save();
     }
 
-    public static function delete(CategoryDeleteRequest $request){
+    public static function delete(CategoryDeleteRequest $request)
+    {
         $entity = CategoryRepository::search([
             ['id', '=', $request->id]
         ])[0];
@@ -83,6 +84,8 @@ class CategoryServices{
 
         foreach (static::SEARCH_REQUEST_ATTRIBUTES as $attribute => $search_detail) {
             if ($request->$attribute == null) continue;
+            $attribute_value = $request->$attribute;
+            if ($search_detail['operator'] == 'LIKE') $attribute_value = static::fix_str_like_op($attribute_value);
             $attributes[] = [$search_detail['column'], $search_detail['operator'], $request->$attribute];
         }
 
@@ -91,5 +94,3 @@ class CategoryServices{
         return $entities;
     }
 }
-
-?>

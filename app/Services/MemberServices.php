@@ -16,10 +16,10 @@ use App\Http\Requests\MemberUpdateRequest;
 use App\Repositories\MemberRepository;
 use Illuminate\Support\Facades\Hash;
 
-class MemberServices
+class MemberServices extends Service
 {
     private const SEARCH_REQUEST_ATTRIBUTES = [
-        'name' => ['column' => 'name', 'operator' => '='],
+        'name' => ['column' => 'name', 'operator' => 'LIKE'],
         'email' => ['column' => 'email', 'operator' => '='],
         'phone' => ['column' => 'phone', 'operator' => '='],
         'address' => ['column' => 'address', 'operator' => '='],
@@ -103,6 +103,8 @@ class MemberServices
 
         foreach (static::SEARCH_REQUEST_ATTRIBUTES as $attribute => $search_detail) {
             if ($request->$attribute == null) continue;
+            $attribute_value = $request->$attribute;
+            if ($search_detail['operator'] == 'LIKE') $attribute_value = static::fix_str_like_op($attribute_value);
             $attributes[] = [$search_detail['column'], $search_detail['operator'], $request->$attribute];
         }
 

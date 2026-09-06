@@ -13,13 +13,13 @@ use App\Http\Requests\LibrarianUpdateRequest;
 use App\Repositories\LibrarianRepository;
 use Illuminate\Support\Facades\Hash;
 
-class LibrarianServices
+class LibrarianServices extends Service
 {
     private const SEARCH_REQUEST_ATTRIBUTES = [
-        'name' => ['column' => 'name', 'operator' => '='],
+        'name' => ['column' => 'name', 'operator' => 'LIKE'],
         'email' => ['column' => 'email', 'operator' => '='],
         'phone' => ['column' => 'phone', 'operator' => '='],
-        'address' => ['column' => 'address', 'operator' => '='],
+        'address' => ['column' => 'address', 'operator' => 'LIKE'],
     ];
 
     private const UPDATE_REQUEST_ATTRIBUTES = [
@@ -96,6 +96,8 @@ class LibrarianServices
 
         foreach (static::SEARCH_REQUEST_ATTRIBUTES as $attribute => $search_detail) {
             if ($request->$attribute == null) continue;
+            $attribute_value = $request->$attribute;
+            if ($search_detail['operator'] == 'LIKE') $attribute_value = static::fix_str_like_op($attribute_value);
             $attributes[] = [$search_detail['column'], $search_detail['operator'], $request->$attribute];
         }
 
