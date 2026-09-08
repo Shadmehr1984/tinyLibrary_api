@@ -10,6 +10,7 @@ use Illuminate\Validation\Rule;
 
 class BorrowRequest extends FormRequest
 {
+    public $member_id;
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -26,9 +27,9 @@ class BorrowRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'member_id' => ['required', 'integer', 'gt:0', 'exists:members,id'],
+            'member_id' => ['nullable', 'integer', 'gt:0', 'exists:members,id'],
             'book_id' => ['required', 'integer', 'gt:0', 'exists:books,id'],
-            '_borrow_rule' => [new DuplicateBorrowRule($this->member_id, $this->book_id)]
+            '_borrow_rule' => [new DuplicateBorrowRule($this->user()->id, $this->book_id)]
         ];
     }
 

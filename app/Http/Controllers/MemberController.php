@@ -69,12 +69,15 @@ class MemberController extends Controller
 
     public function add_borrow(BorrowRequest $request)
     {
+        $request->member_id = $request->user()->id;
+
         if (MemberServices::member_borrows($request->member_id) >= BorrowServices::MAX_BORROWS_LIMIT){
             return response()->json([
                 'status-code' => 403,
                 'message' => 'you reach max borrows limit'
             ]);
         }
+        
         BorrowServices::add($request);
 
         return response()->json([
