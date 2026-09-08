@@ -11,6 +11,7 @@ use App\Models\Member;
 use App\Services\BookServices;
 use App\Services\BorrowServices;
 use App\Services\MemberServices;
+use App\Services\PenaltyServices;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -71,6 +72,13 @@ class MemberController extends Controller
     public function add_borrow(BorrowRequest $request)
     {
         $request->member_id = $request->user()->id;
+
+        if (PenaltyServices::member_have_unpaid_penalty($request->member_id)){
+            return response()->json([
+                'status-code' => 403,
+                'message' => 'you have unpaid penalties, first paid your penalties'
+            ]);
+        }
 
         if (MemberServices::member_borrows($request->member_id) >= BorrowServices::MAX_BORROWS_LIMIT) {
             return response()->json([

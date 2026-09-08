@@ -102,4 +102,9 @@ class PenaltyServices extends Service
 
         return $entities;
     }
+
+    public static function member_have_unpaid_penalty(int $member_id): bool
+    {
+        return PenaltyRepository::member_have_unpaid_penalty($member_id);
+    }
 }
