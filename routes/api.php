@@ -67,3 +67,5 @@ Route::post('/v1/member/logout', [MemberController::class, 'logout'])->middlewar
 Route::post('/v1/member/search_book', [MemberController::class, 'search_book'])->middleware('auth:member');
 
 Route::post('/v1/member/add_borrow', [MemberController::class, 'add_borrow'])->middleware('auth:member');
+
+Route::post('/v1/member/search_borrow', [MemberController::class, 'search_borrow'])->middleware('auth:member');

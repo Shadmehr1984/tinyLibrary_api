@@ -21,13 +21,33 @@ class Borrow extends Entity
 
     public function get()
     {
+        //set due_date value
+        $due_date = null;
+        if ($this->due_date != null) {
+            if ($this->pure_value) {
+                $due_date = $this->due_date->get();
+            }
+            else {
+                $due_date = $this->due_date;
+            }
+        }
+        //set returned_at value
+        $returned_at = null;
+        if ($this->returned_at != null) {
+            if ($this->pure_value) {
+                $returned_at = $this->returned_at->get();
+            }
+            else {
+                $returned_at = $this->returned_at;
+            }
+        }
         return [
             'id' => $this->id,
             'member_id' => $this->member_id,
             'book_id' => $this->book_id,
             'borrowed_at' => $this->pure_value ? $this->borrowed_at->get() : $this->borrowed_at,
-            'due_date' => $this->pure_value ? $this->due_date->get() : $this->due_date,
-            'returned_at' => $this->pure_value ? $this->returned_at->get() : $this->returned_at,
+            'due_date' => $due_date,
+            'returned_at' => $returned_at,
             'status' => $this->pure_value ? $this->status->name : $this->status,
             'penalty_amount' => $this->penalty_amount
         ];
