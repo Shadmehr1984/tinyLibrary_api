@@ -50,6 +50,11 @@ class Date{
         return new static($now);
     }
 
+    public static function difference(Date $first, Date $second){
+        $difference = date_diff(new \DateTime($first->__toString()), new \DateTime($second->__toString()));
+        return $difference->days;
+    }
+
     public function __toString()
     {
         return $this->date;

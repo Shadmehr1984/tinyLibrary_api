@@ -43,9 +43,9 @@ class PenaltyServices extends Service
     private static function take_update_attributes(PenaltyUpdateRequest $request): array
     {
         $attributes = [];
-        
+
         foreach (static::UPDATE_REQUEST_ATTRIBUTES as $attribute) {
-            if ($request->$attribute != null){
+            if ($request->$attribute != null) {
                 $attributes[$attribute] = $request->$attribute;
             }
         }
@@ -106,5 +106,34 @@ class PenaltyServices extends Service
     public static function member_have_unpaid_penalty(int $member_id): bool
     {
         return PenaltyRepository::member_have_unpaid_penalty($member_id);
+    }
+
+    public static function add_by_delayed_borrows()
+    {
+        $delayed_borrows = BorrowServices::delayed_borrows();
+
+        //check delayed borrows exists on penalties or not
+        $delayed_borrows = PenaltyRepository::penalties_exists($delayed_borrows);
+
+        foreach ($delayed_borrows as $delayed_borrow) {
+            if ($delayed_borrow['exists']){
+                $penalty = PenaltyRepository::search([['borrowed_id', '=', $delayed_borrow['borrowed_id']], ['member_id', '=', $delayed_borrow['member_id']]])[0];
+                $repository = new PenaltyRepository($penalty);
+                $repository->update(['calculated_at' => $delayed_borrow['calculated_at'], 'amount' => $delayed_borrow['amount']]);
+                $repository->save();
+            }
+            else{
+                $penalty = new penalty(
+                    null,
+                    $delayed_borrow['borrowed_id'],
+                    $delayed_borrow['member_id'],
+                    $delayed_borrow['amount'],
+                    new Date($delayed_borrow['calculated_at']),
+                    null
+                );
+                $repository = new PenaltyRepository($penalty);
+                $repository->save();
+            }
+        }
     }
 }

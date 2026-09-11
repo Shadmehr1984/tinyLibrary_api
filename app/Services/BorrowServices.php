@@ -34,12 +34,14 @@ class BorrowServices extends Service
 
     private const UPDATE_REQUEST_ATTRIBUTES = [
         'due_date',
-            'returned_at',
-            'status',
-            'penalty_amount'
+        'returned_at',
+        'status',
+        'penalty_amount'
     ];
 
     public const MAX_BORROWS_LIMIT = 3;
+    public const MAX_DELAY_DAYS = 14;
+    public const PENALTY_AMOUNT_PER_DAY = 2000;
 
     private static function convert_request_to_entity(BorrowRequest $request): Borrow
     {
@@ -53,9 +55,9 @@ class BorrowServices extends Service
     private static function take_update_attributes(BorrowUpdateRequest $request): array
     {
         $attributes = [];
-        
+
         foreach (static::UPDATE_REQUEST_ATTRIBUTES as $attribute) {
-            if ($request->$attribute != null){
+            if ($request->$attribute != null) {
                 $attributes[$attribute] = $request->$attribute;
             }
         }
@@ -113,5 +115,10 @@ class BorrowServices extends Service
         $entities = BorrowRepository::search($attributes, $request->limit);
 
         return $entities;
+    }
+
+    public static function delayed_borrows(): array
+    {
+        return BorrowRepository::delayed_borrows();
     }
 }

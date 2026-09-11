@@ -38,4 +38,24 @@ class PenaltyRepository extends Repository
 
         return sizeof($penalties) > 0;
     }
+
+    public static function penalties_exists($delayed_borrows)
+    {
+        $penalties = PenaltyModel::all();
+
+        foreach ($delayed_borrows as &$delayed_borrow) {
+            $delayed_borrow['exists'] = null;
+            foreach ($penalties as $penalty) {
+                if ($delayed_borrow['borrowed_id'] == $penalty->borrowed_id && $delayed_borrow['member_id'] == $penalty->member_id){
+                    $delayed_borrow['exists'] = true;
+                    break;
+                }
+            }
+            if ($delayed_borrow['exists'] == null){
+                $delayed_borrow['exists'] = false;
+            }
+        }
+
+        return $delayed_borrows;
+    }
 }
