@@ -65,7 +65,6 @@ class Repository implements RepositoryInterface
     // $attributes: array[array[column, operator, value]]
     public static function search(array $attributes, int $limit = null)
     {
-        //!this is'nt work
         static::set_attributes_name();
 
         $limit = $limit == null ? static::$default_search_limit : $limit;

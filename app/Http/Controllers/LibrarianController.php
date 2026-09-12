@@ -18,10 +18,13 @@ use App\Http\Requests\MemberDeleteRequest;
 use App\Http\Requests\MemberRequest;
 use App\Http\Requests\MemberSearchRequest;
 use App\Http\Requests\MemberUpdateRequest;
+use App\Http\Requests\PenaltyPayRequest;
 use App\Models\Librarian;
 use App\Services\BookServices;
 use App\Services\CategoryServices;
+use App\Services\exceptions\PenaltyAlreadyPaidException;
 use App\Services\MemberServices;
+use App\Services\PenaltyServices;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use PharIo\Manifest\Library;
@@ -220,6 +223,23 @@ class LibrarianController extends Controller
         return response()->json([
             'status-code' => 200,
             'message' => 'category updated'
+        ]);
+    }
+
+    public function pay_penalty(PenaltyPayRequest $request)
+    {
+        try {
+            PenaltyServices::pay($request);
+        } catch (PenaltyAlreadyPaidException $exception) {
+            return response()->json([
+                'status-code' => 400,
+                'message' => $exception->getMessage()
+            ]);
+        }
+
+        return response()->json([
+            'status-code' => 201,
+            'message' => 'penalty paid successfully'
         ]);
     }
 }

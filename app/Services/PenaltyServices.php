@@ -6,10 +6,12 @@ use App\Domain\Builders\PenaltyBuilder;
 use App\Domain\Entities\penalty;
 use App\Domain\ValueObjects\Date;
 use App\Http\Requests\PenaltyDeleteRequest;
+use App\Http\Requests\PenaltyPayRequest;
 use App\Http\Requests\PenaltyRequest;
 use App\Http\Requests\PenaltySearchRequest;
 use App\Http\Requests\PenaltyUpdateRequest;
 use App\Repositories\PenaltyRepository;
+use App\Services\exceptions\PenaltyAlreadyPaidException;
 
 class PenaltyServices extends Service
 {
@@ -101,6 +103,21 @@ class PenaltyServices extends Service
         $entities = PenaltyRepository::search($attributes, $request->limit);
 
         return $entities;
+    }
+
+    public static function pay(PenaltyPayRequest $request)
+    {
+        $penalty = PenaltyRepository::search([['id', '=', $request->id]])[0];
+
+        if ($penalty->get()['paid_at']){
+            throw new PenaltyAlreadyPaidException('penalty already paid');
+        }
+
+        $repository = new PenaltyRepository($penalty);
+
+        $repository->update(['paid_at' => Date::now()->__toString()]);
+
+        $repository->save();
     }
 
     public static function member_have_unpaid_penalty(int $member_id): bool
