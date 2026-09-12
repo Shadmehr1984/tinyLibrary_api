@@ -21,7 +21,7 @@ class MemberController extends Controller
     public function login(MemberLoginRequest $request)
     {
         $member = Member::all()->where('email', '=', $request->email)->first();
-        if (!$member || !Hash::check($request->password, $member->password)) {
+        if (!$member || !Hash::check($request->password, $member->password) || !MemberServices::is_active($request->email)) {
             return response()->json([
                 'massage' => 'invalid email or password'
             ]);

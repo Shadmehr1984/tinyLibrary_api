@@ -3,6 +3,7 @@
 use App\Domain\ValueObjects\ISBN;
 use App\Http\Controllers\LibrarianController;
 use App\Http\Controllers\MemberController;
+use App\Http\Middleware\MemberIsActive;
 use App\Http\Requests\BookRequest;
 use App\Http\Requests\BookSearchRequest;
 use App\Http\Requests\CategorySearchRequest;
@@ -63,12 +64,12 @@ Route::put('/v1/librarian/pay_penalty', [LibrarianController::class, 'pay_penalt
 
 Route::post('/v1/member/login', [MemberController::class, 'login']);
 
-Route::post('/v1/member/logout', [MemberController::class, 'logout'])->middleware('auth:member');
+Route::post('/v1/member/logout', [MemberController::class, 'logout'])->middleware(['auth:member', MemberIsActive::class]);
 
-Route::post('/v1/member/search_book', [MemberController::class, 'search_book'])->middleware('auth:member');
+Route::post('/v1/member/search_book', [MemberController::class, 'search_book'])->middleware(['auth:member', MemberIsActive::class]);
 
-Route::post('/v1/member/add_borrow', [MemberController::class, 'add_borrow'])->middleware('auth:member');
+Route::post('/v1/member/add_borrow', [MemberController::class, 'add_borrow'])->middleware(['auth:member', MemberIsActive::class]);
 
-Route::post('/v1/member/search_borrow', [MemberController::class, 'search_borrow'])->middleware('auth:member');
+Route::post('/v1/member/search_borrow', [MemberController::class, 'search_borrow'])->middleware(['auth:member', MemberIsActive::class]);
 
-Route::post('/v1/member/search_penalty', [MemberController::class, 'search_penalty'])->middleware('auth:member');
+Route::post('/v1/member/search_penalty', [MemberController::class, 'search_penalty'])->middleware(['auth:member', MemberIsActive::class]);
