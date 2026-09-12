@@ -136,4 +136,9 @@ class PenaltyServices extends Service
             }
         }
     }
+
+    public static function update_penalties_detail()
+    {
+        return PenaltyRepository::update_penalties_detail();
+    }
 }

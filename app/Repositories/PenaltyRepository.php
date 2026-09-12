@@ -10,6 +10,7 @@ use App\Domain\ValueObjects\Phone;
 use App\Models\Member as MemberModel;
 use App\Models\Penalty as PenaltyModel;
 use App\Repositories\Exceptions\MemberNotExistsException;
+use App\Services\BorrowServices;
 
 class PenaltyRepository extends Repository
 {
@@ -57,5 +58,26 @@ class PenaltyRepository extends Repository
         }
 
         return $delayed_borrows;
+    }
+
+    public static function update_penalties_detail()
+    {
+        $penalties = PenaltyModel::all();
+
+        $now = Date::now();
+
+        $updated = 0;
+
+        foreach ($penalties as $penalty ){
+            $different = Date::difference($now, new Date($penalty->calculated_at));
+            if ($different > 0){
+                $penalty->calculated_at = $now->__toString();
+                $penalty->amount = $penalty->amount + ($different * BorrowServices::PENALTY_AMOUNT_PER_DAY);
+                $penalty->save();
+                $updated++;
+            }
+        }
+
+        return ['updated_penalty' => $updated];
     }
 }
