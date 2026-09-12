@@ -7,6 +7,7 @@ use App\Http\Requests\BookSearchRequest;
 use App\Http\Requests\BorrowRequest;
 use App\Http\Requests\BorrowSearchRequest;
 use App\Http\Requests\MemberLoginRequest;
+use App\Http\Requests\PenaltySearchRequest;
 use App\Models\Member;
 use App\Services\BookServices;
 use App\Services\BorrowServices;
@@ -111,6 +112,25 @@ class MemberController extends Controller
         return response()->json([
             'status-code' => 200,
             'borrows' => $borrows
+        ]);
+    }
+
+    public function search_penalty(PenaltySearchRequest $request)
+    {
+        $request->member_id = $request->user()->id;
+
+        $entities = PenaltyServices::search($request);
+
+        $penalties = [];
+
+        foreach ($entities as $entity) {
+            $entity->pure_value(true);
+            $penalties[] = $entity->get();
+        }
+
+        return response()->json([
+            'status-code' => 200,
+            'penalties' => $penalties
         ]);
     }
 }
