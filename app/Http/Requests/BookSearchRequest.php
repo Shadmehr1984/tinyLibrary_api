@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\CanNotSetWithOtherFieldRule;
 use App\Rules\Date;
 use App\Rules\Isbn;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -42,6 +43,8 @@ class BookSearchRequest extends FormRequest
             'available_copies_greater_than' => ['nullable', 'integer', 'gt:0'],
             'description' => ['nullable', Rule::string()->min(10)->max(40)],
             'location' => ['nullable', Rule::string()],
+            'available' => ['nullable', 'bool', new CanNotSetWithOtherFieldRule($this->not_available, 'not_available')],
+            'not_available' => ['nullable', 'bool', new CanNotSetWithOtherFieldRule($this->available, 'available')],
             'limit' => ['nullable', 'integer', 'gt:0'],
             '_check' => [
                 'required_without_all:title,author,isbn,published,published_before,published_after,publisher,category_id,total_copies,total_copies_lower_than,total_copies_greater_than,available_copies,available_copies_lower_than,available_copies_greater_than,description,location'

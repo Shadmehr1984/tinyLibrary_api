@@ -72,7 +72,11 @@ class Repository implements RepositoryInterface
         $query = static::$model_class::select(['*'])->limit($limit);
 
         foreach ($attributes as $attribute) {
-            $query = $query->where($attribute[0], $attribute[1], $attribute[2]);
+            if (isset($attribute[3]) && $attribute[3] == 'whereColumn') {
+                $query = $query->whereColumn($attribute[0], $attribute[1], $attribute[2]);
+            } else {
+                $query = $query->where($attribute[0], $attribute[1], $attribute[2]);
+            }
         }
 
         $models = $query->get();

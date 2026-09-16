@@ -31,6 +31,8 @@ class BookServices extends Service
         'available_copies_greater_than' => ['column' => 'available_copies', 'operator' => '>'],
         'description' => ['column' => 'description', 'operator' => 'LIKE'],
         'location' => ['column' => 'location', 'operator' => '='],
+        'available' => ['column' => 'available_copies', 'operator' => '>', 'default' => 0],
+        'not_available' => ['column' => 'available_copies', 'operator' => '=', 'default' => 0]
     ];
 
     private const UPDATE_REQUEST_ATTRIBUTES = [
@@ -108,7 +110,8 @@ class BookServices extends Service
             if ($request->$attribute == null) continue;
             $attribute_value = $request->$attribute;
             if ($search_detail['operator'] == 'LIKE') $attribute_value = static::fix_str_like_op($attribute_value);
-            $attributes[] = [$search_detail['column'], $search_detail['operator'], $attribute_value];
+            if (isset($search_detail['default'])) $attributes[] = [$search_detail['column'], $search_detail['operator'], $search_detail['default']];
+            else $attributes[] = [$search_detail['column'], $search_detail['operator'], $attribute_value];
         }
 
         $entities = BookRepository::search($attributes, $request->limit);
