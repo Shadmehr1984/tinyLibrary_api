@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BookSearchRequest;
+use App\Http\Requests\BorrowBackRequest;
 use App\Http\Requests\BorrowRequest;
 use App\Http\Requests\BorrowSearchRequest;
 use App\Http\Requests\MemberLoginRequest;
@@ -119,6 +120,22 @@ class MemberController extends Controller
         return response()->json([
             'status-code' => 200,
             'borrows' => $borrows
+        ]);
+    }
+
+    public function back_borrow(BorrowBackRequest $request){
+        if (PenaltyServices::member_have_unpaid_penalty($request->user()->id)){
+            return response()->json([
+                'status-code' => 400,
+                'message' => 'you have unpaid penalties, first paid your penalties'
+            ]);
+        }
+
+        BorrowServices::back($request);
+
+        return response()->json([
+            'status-code' => 200,
+            'message' => 'book back'
         ]);
     }
 
