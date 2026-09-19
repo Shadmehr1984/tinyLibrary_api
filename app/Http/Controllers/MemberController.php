@@ -76,15 +76,22 @@ class MemberController extends Controller
 
         if (PenaltyServices::member_have_unpaid_penalty($request->member_id)){
             return response()->json([
-                'status-code' => 403,
+                'status-code' => 400,
                 'message' => 'you have unpaid penalties, first paid your penalties'
             ]);
         }
 
-        if (MemberServices::member_borrows($request->member_id) >= BorrowServices::MAX_BORROWS_LIMIT) {
+        if (PenaltyServices::member_reach_borrow_limit($request->member_id)) {
             return response()->json([
-                'status-code' => 403,
+                'status-code' => 400,
                 'message' => 'you reach max borrows limit'
+            ]);
+        }
+
+        if (!BookServices::is_available($request->book_id)){
+            return response()->json([
+                'status-code' => 400,
+                'message' => 'book is not available'
             ]);
         }
 

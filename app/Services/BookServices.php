@@ -118,4 +118,10 @@ class BookServices extends Service
 
         return $entities;
     }
+
+    public static function is_available(int $book_id){
+        $entity = BookRepository::search([['id', '=', $book_id]])[0];
+
+        return $entity->get()['available_copies'] > 0;
+    }
 }

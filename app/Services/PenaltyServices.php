@@ -158,4 +158,8 @@ class PenaltyServices extends Service
     {
         return PenaltyRepository::update_penalties_detail();
     }
+
+    public static  function member_reach_borrow_limit(int $member_id){
+        return MemberServices::member_borrows($member_id) >= BorrowServices::MAX_BORROWS_LIMIT;
+    } 
 }
