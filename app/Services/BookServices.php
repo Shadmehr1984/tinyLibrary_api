@@ -119,9 +119,35 @@ class BookServices extends Service
         return $entities;
     }
 
-    public static function is_available(int $book_id){
-        $entity = BookRepository::search([['id', '=', $book_id]])[0];
+    public static function is_available(int $id){
+        $entity = BookRepository::search([['id', '=', $id]])[0];
 
         return $entity->get()['available_copies'] > 0;
+    }
+
+    public static function increase_available_copies(int $id){
+        $entity = BookRepository::search([['id', '=', $id]])[0];
+
+        $available_copies = $entity->get()['available_copies'];
+        $available_copies++;
+
+        $repository = new BookRepository($entity);
+
+        $repository->update(['available_copies' => $available_copies]);
+
+        $repository->save();
+    }
+
+    public static function decrease_available_copies(int $id){
+        $entity = BookRepository::search([['id', '=', $id]])[0];
+
+        $available_copies = $entity->get()['available_copies'];
+        $available_copies--;
+
+        $repository = new BookRepository($entity);
+
+        $repository->update(['available_copies' => $available_copies]);
+
+        $repository->save();
     }
 }
