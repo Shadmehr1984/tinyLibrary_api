@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Rules\BorrowIsforMemberRule;
+use App\Rules\BorrowNotReturnedRule;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -24,7 +25,12 @@ class BorrowBackRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id' => ['require', 'integer', new BorrowIsforMemberRule($this->user()->id)]
+            'id' => [
+                'require',
+                'integer',
+                new BorrowIsforMemberRule($this->user()->id),
+                new BorrowNotReturnedRule
+            ]
         ];
     }
 }
