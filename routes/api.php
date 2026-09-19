@@ -60,6 +60,7 @@ Route::post('/v1/librarian/search_category', [LibrarianController::class, 'searc
 Route::put('/v1/librarian/update_category', [LibrarianController::class, 'update_category'])->middleware('auth:librarian');
 
 Route::put('/v1/librarian/pay_penalty', [LibrarianController::class, 'pay_penalty'])->middleware('auth:librarian');
+
 // member controller
 
 Route::post('/v1/member/login', [MemberController::class, 'login']);
@@ -71,5 +72,7 @@ Route::post('/v1/member/search_book', [MemberController::class, 'search_book'])-
 Route::post('/v1/member/add_borrow', [MemberController::class, 'add_borrow'])->middleware(['auth:member', MemberIsActive::class]);
 
 Route::post('/v1/member/search_borrow', [MemberController::class, 'search_borrow'])->middleware(['auth:member', MemberIsActive::class]);
+
+Route::put('/v1/member/back_borrow', [MemberController::class, 'back_borrow'])->middleware(['auth:member', MemberIsActive::class]);
 
 Route::post('/v1/member/search_penalty', [MemberController::class, 'search_penalty'])->middleware(['auth:member', MemberIsActive::class]);

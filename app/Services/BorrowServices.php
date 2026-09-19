@@ -6,6 +6,7 @@ use App\Domain\Builders\BorrowBuilder;
 use App\Domain\Entities\Borrow;
 use App\Domain\ValueObjects\BorrowStatus;
 use App\Domain\ValueObjects\Date;
+use App\Http\Requests\BorrowBackRequest;
 use App\Http\Requests\BorrowDeleteRequest;
 use App\Http\Requests\BorrowRequest;
 use App\Http\Requests\BorrowSearchRequest;
@@ -71,6 +72,8 @@ class BorrowServices extends Service
 
         $repository = new BorrowRepository($entity);
         $repository->save();
+
+        BookServices::decrease_available_copies($request->book_id);
     }
 
     public static function delete(BorrowDeleteRequest $request)
@@ -115,6 +118,23 @@ class BorrowServices extends Service
         $entities = BorrowRepository::search($attributes, $request->limit);
 
         return $entities;
+    }
+
+    public static function back(BorrowBackRequest $request){
+        $entity = BorrowRepository::search([['id', '=', $request->id]])[0];
+
+        $entity->set([
+            'returned_at' => Date::now(),
+            'status' => BorrowStatus::returned
+        ]);
+
+        $repository = new BorrowRepository($entity);
+
+        $repository->save();
+
+        $book_id = $entity->get()['book_id'];
+
+        BookServices::increase_available_copies($book_id);
     }
 
     public static function delayed_borrows(): array
