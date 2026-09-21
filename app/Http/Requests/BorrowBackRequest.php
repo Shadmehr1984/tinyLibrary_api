@@ -26,7 +26,7 @@ class BorrowBackRequest extends FormRequest
     {
         return [
             'id' => [
-                'require',
+                'required',
                 'integer',
                 new BorrowIsforMemberRule($this->user()->id),
                 new BorrowNotReturnedRule

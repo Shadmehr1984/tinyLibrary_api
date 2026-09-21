@@ -33,6 +33,6 @@ class MemberRepository extends Repository
         if (sizeof($member) == 0) {
             throw new MemberNotExistsException($member_id);
         }
-        return BorrowModel::where('member_id', '=', $member_id)->count();
+        return BorrowModel::where('member_id', '=', $member_id)->where('status', '=', 'borrowed')->count();
     }
 }

@@ -29,13 +29,13 @@ class PenaltyRepository extends Repository
 
     public static function member_have_unpaid_penalty(int $member_id): bool
     {
-        $member = MemberModel::where('id', '=', $member_id);
+        $member = MemberModel::where('id', '=', $member_id)->get();
 
         if (sizeof($member) == 0) {
             throw new MemberNotExistsException($member_id);
         }
 
-        $penalties = PenaltyModel::where('member_id', '=', $member_id)->where('paid_at', '=', null);
+        $penalties = PenaltyModel::where('member_id', '=', $member_id)->where('paid_at', '=', null)->get();
 
         return sizeof($penalties) > 0;
     }
