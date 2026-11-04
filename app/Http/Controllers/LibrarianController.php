@@ -20,8 +20,10 @@ use App\Http\Requests\MemberSearchRequest;
 use App\Http\Requests\MemberUpdateRequest;
 use App\Http\Requests\PenaltyPayRequest;
 use App\Models\Librarian;
+use App\Services\BookCacheServices;
 use App\Services\BookServices;
 use App\Services\CategoryServices;
+use App\Services\exceptions\MaxCacheObjReach;
 use App\Services\exceptions\PenaltyAlreadyPaidException;
 use App\Services\MemberServices;
 use App\Services\PenaltyServices;
@@ -51,10 +53,9 @@ class LibrarianController extends Controller
 
     public function logout()
     {
-        try{
-        $librarian = (Librarian::class)(auth()->user());
-        }
-        catch (\Throwable $th){
+        try {
+            $librarian = (Librarian::class)(auth()->user());
+        } catch (\Throwable $th) {
             $librarian = auth()->user();
         }
         $librarian->currentAccessToken()->delete();
@@ -86,13 +87,25 @@ class LibrarianController extends Controller
 
     public function search_book(BookSearchRequest $request)
     {
-        $book_entities = BookServices::search($request);
-
         $books = [];
 
-        foreach ($book_entities as $entity) {
-            $entity->pure_value(true);
-            $books[] = $entity->get();
+        $cached_books = BookCacheServices::get($request);
+
+        if (isset($cached_books)) {
+            $books = $cached_books;
+        } else {
+            $entities = BookServices::search($request);
+
+            try {
+                BookCacheServices::cache($entities);
+            } catch (MaxCacheObjReach $e) {
+                //cache is full
+            }
+
+            foreach ($entities as $entity) {
+                $entity->pure_value(true);
+                $books[] = $entity->get();
+            }
         }
 
         return response()->json([

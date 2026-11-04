@@ -41,7 +41,7 @@ class CacheRepository
 
     public static function search_keys(string $word, int $count = null)
     {
-        $pattern = "*" . str_replace(' ', '*', $word) . "*";
+        $pattern = "*" . $word . "*";
 
         $count = isset($count) && $count > 0 ? $count : static::SCAN_COUNT;
 
@@ -51,6 +51,8 @@ class CacheRepository
             [$cursor, $batch] = Redis::scan($cursor, 'MATCH', $pattern, 'COUNT', $count);
             $keys = array_merge($keys, $batch);
         } while ($cursor !== '0');
+
+        static::fix_searched_keys($keys);
 
         return $keys;
     }
@@ -71,6 +73,17 @@ class CacheRepository
         $obj_count = Redis::dbSize();
 
         return $obj_count;
+    }
+
+    private static function fix_searched_keys(array &$keys)
+    {
+        $prefix = 'laravel-database-';
+        $length = strlen($prefix);
+
+        $keys = array_map(
+            fn ($s) => str_starts_with($s, $prefix) ? substr($s, $length) : $s,
+            $keys
+        );
     }
 
     private static function validate(string $key, array $hash_set = null, int $expire_time = null)

@@ -29,7 +29,7 @@ class BookSearchRequest extends FormRequest
         return [
             'title' => ['nullable', Rule::string()],
             'author' => ['nullable', Rule::string()],
-            'isbn' => ['nullable', new Isbn, Rule::unique('books')],
+            'isbn' => ['nullable', new Isbn, Rule::exists('books')],
             'published' => ['nullable', new Date],
             'published_before' => ['nullable', new date],
             'published_after' => ['nullable', new date],

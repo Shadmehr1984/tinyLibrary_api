@@ -10,8 +10,10 @@ use App\Http\Requests\BorrowSearchRequest;
 use App\Http\Requests\MemberLoginRequest;
 use App\Http\Requests\PenaltySearchRequest;
 use App\Models\Member;
+use App\Services\BookCacheServices;
 use App\Services\BookServices;
 use App\Services\BorrowServices;
+use App\Services\exceptions\MaxCacheObjReach;
 use App\Services\MemberServices;
 use App\Services\PenaltyServices;
 use Illuminate\Http\Request;
@@ -56,17 +58,30 @@ class MemberController extends Controller
 
     public function search_book(BookSearchRequest $request)
     {
-        $entities = BookServices::search($request);
-
         $books = [];
+        $is_cached = false; //!debug
+        $cached_books = BookCacheServices::get($request);
 
-        foreach ($entities as $entity) {
-            $entity->pure_value(true);
-            $books[] = $entity->get();
+        if (isset($cached_books)) {
+            $books = $cached_books;
+            $is_cached = true;
+        } else {
+            $entities = BookServices::search($request);
+
+            try {
+                BookCacheServices::cache($entities);
+            } catch (MaxCacheObjReach $e) {
+                //cache is full
+            }
+            foreach ($entities as $entity) {
+                $entity->pure_value(true);
+                $books[] = $entity->get();
+            }
         }
 
         return response()->json([
             'status-code' => 200,
+            'is_cached' => $is_cached,
             'books' => $books
         ]);
     }
@@ -75,7 +90,7 @@ class MemberController extends Controller
     {
         $request->member_id = $request->user()->id;
 
-        if (PenaltyServices::member_have_unpaid_penalty($request->member_id)){
+        if (PenaltyServices::member_have_unpaid_penalty($request->member_id)) {
             return response()->json([
                 'status-code' => 400,
                 'message' => 'you have unpaid penalties, first paid your penalties'
@@ -89,7 +104,7 @@ class MemberController extends Controller
             ]);
         }
 
-        if (!BookServices::is_available($request->book_id)){
+        if (!BookServices::is_available($request->book_id)) {
             return response()->json([
                 'status-code' => 400,
                 'message' => 'book is not available'
@@ -123,8 +138,9 @@ class MemberController extends Controller
         ]);
     }
 
-    public function back_borrow(BorrowBackRequest $request){
-        if (PenaltyServices::member_have_unpaid_penalty($request->user()->id)){
+    public function back_borrow(BorrowBackRequest $request)
+    {
+        if (PenaltyServices::member_have_unpaid_penalty($request->user()->id)) {
             return response()->json([
                 'status-code' => 400,
                 'message' => 'you have unpaid penalties, first paid your penalties'
