@@ -83,6 +83,10 @@ class BookRepositoryTest extends TestCase
 
         $repo->save();
 
+        $books = BookRepository::search([['title', '=', 'Dirty Code']]);
+
+        $book_entity = $books[0];
+
         $attributes = $book_entity->get();
 
         $this->assertSame('Dirty Code', $attributes['title']);
