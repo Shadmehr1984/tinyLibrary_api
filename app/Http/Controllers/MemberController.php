@@ -59,12 +59,10 @@ class MemberController extends Controller
     public function search_book(BookSearchRequest $request)
     {
         $books = [];
-        $is_cached = false; //!debug
         $cached_books = BookCacheServices::get($request);
 
         if (isset($cached_books)) {
             $books = $cached_books;
-            $is_cached = true;
         } else {
             $entities = BookServices::search($request);
 
@@ -81,7 +79,6 @@ class MemberController extends Controller
 
         return response()->json([
             'status-code' => 200,
-            'is_cached' => $is_cached,
             'books' => $books
         ]);
     }
