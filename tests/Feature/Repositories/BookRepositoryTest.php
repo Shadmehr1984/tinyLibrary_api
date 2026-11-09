@@ -66,4 +66,48 @@ class BookRepositoryTest extends TestCase
 
         $this->assertSame([], $books);
     }
+
+    public function test_change_book_title(): void
+    {
+        $books = BookRepository::search([['title', '=', 'Clean Code']]);
+
+        $book_entity = $books[0];
+
+        $book_entity->set(
+            [
+                'title' => 'Dirty Code'
+            ]
+        );
+
+        $repo = new BookRepository($book_entity);
+
+        $repo->save();
+
+        $attributes = $book_entity->get();
+
+        $this->assertSame('Dirty Code', $attributes['title']);
+        $this->assertSame('Robert C. Martin', $attributes['author']);
+        $this->assertInstanceOf(ISBN::class, $attributes['isbn']);
+        $this->assertSame('9780132350884', $attributes['isbn']->get());
+        $this->assertInstanceOf(Date::class, $attributes['published']);
+        $this->assertSame('2008-08-01', $attributes['published']->get());
+        $this->assertNull($attributes['deleted_at']);
+    }
+
+    public function test_delete_book(): void
+    {
+        $books = BookRepository::search([['title', '=', 'Clean Code']]);
+
+        $book_entity = $books[0];
+
+        $repo = new BookRepository($book_entity);
+
+        $repo->delete();
+
+        $books = BookRepository::search([
+            ['title', '=', 'Clean Code'],
+        ]);
+
+        $this->assertSame([], $books);
+    }
 }
