@@ -3,6 +3,8 @@
 namespace Tests\Feature\Repositories;
 
 use App\Domain\Entities\Book as BookEntity;
+use App\Models\Book;
+use App\Models\Category;
 use App\Domain\ValueObjects\Date;
 use App\Domain\ValueObjects\ISBN;
 use App\Repositories\BookRepository;
@@ -108,10 +110,96 @@ class BookRepositoryTest extends TestCase
 
         $repo->delete();
 
+        $this->assertDatabaseMissing('books', [
+            'title' => 'Dirty Code'
+        ]);
+
         $books = BookRepository::search([
             ['title', '=', 'Clean Code'],
         ]);
 
         $this->assertSame([], $books);
+    }
+
+    public function test_database_books_count_increases_by_adding_another_book(): void
+    {
+        $expected_books_count = 1;
+
+        $this->assertDatabaseCount('books', $expected_books_count);
+
+        DB::table('books')->insert([
+            'title' => 'Dirty Code',
+            'author' => 'Robert C. Martin',
+            'isbn' => '9880132350884',
+            'published' => '2008-08-01',
+            'publisher' => 'Prentice Hall',
+            'category_id' => 1,
+            'total_copies' => 6,
+            'available_copies' => 3,
+            'description' => 'A handbook of agile software craftsmanship.',
+            'location' => 'A-12',
+            'deleted_at' => null,
+        ]);
+
+        $this->assertDatabaseHas('books', [
+            'isbn' => '9880132350884',
+            'title' => 'Dirty Code'
+        ]);
+
+        $expected_books_count = 2;
+
+        $this->assertDatabaseCount('books', $expected_books_count);
+    }
+
+    public function test_add_fake_category_and_book_and_count_must_increases(): void
+    {
+        $category = Category::factory()->create();
+
+        $book = Book::factory()->create(
+            [
+                'category_id' => $category->id
+            ]
+        );
+
+        $this->assertDatabaseCount('books', 2);
+    }
+
+    public function test_add_unavailable_book(): void
+    {
+        $category = Category::factory()->create();
+
+        $unavailable_book = Book::factory()->unavailable()->create([
+            'category_id' => $category->id
+        ]);
+
+        $this->assertDatabaseHas('books', [
+            'isbn' => $unavailable_book->isbn,
+            'available_copies' => 0
+        ]);
+    }
+
+    public function test_add_fake_book_using_relations(): void
+    {
+        $book = Book::factory()->for(Category::factory())->create();
+
+        $this->assertModelExists($book->category);
+
+        $this->assertDatabaseHas('books', [
+            'isbn' => $book->isbn
+        ]);
+    }
+
+    public function test_add_category_with_three_book_relate_to_it_with_factory(): void
+    {
+        $category = Category::factory()->has(Book::factory()->count(3))->create();
+
+        $this->assertCount(3, $category->books);
+
+        foreach($category->books as $book){
+            $this->assertDatabaseHas('books', [
+                'isbn' => $book->isbn,
+                'category_id' => $category->id
+            ]);
+        }
     }
 }
