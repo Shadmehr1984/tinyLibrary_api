@@ -17,6 +17,13 @@ class BookFactory extends Factory
         ]);
     }
 
+    public function iran_location(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'location' => 'iran'
+        ]);
+    }
+
     /**
      * Define the model's default state.
      *
