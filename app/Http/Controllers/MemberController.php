@@ -23,21 +23,20 @@ class MemberController extends Controller
 {
     public function login(MemberLoginRequest $request)
     {
-        $member = Member::all()->where('email', '=', $request->email)->first();
+        $member = Member::where('email', '=', $request->email)->first();
         if (!$member || !Hash::check($request->password, $member->password) || !MemberServices::is_active($request->email)) {
             return response()->json([
-                'massage' => 'invalid email or password'
-            ]);
+                'message' => 'invalid email or password'
+            ], 401);
         }
 
         $token = $member->createToken('member-token')->plainTextToken;
 
         return response()->json([
-            'status-code' => 200,
             'massage' => 'successful login, welcome ' . $member->name,
             'member' => $member,
             'token' => $token
-        ]);
+        ], 201);
     }
 
     public function logout()
