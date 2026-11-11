@@ -154,6 +154,14 @@ class RepositoryOperationsTest extends TestCase
         $this->assertCount(1, $librarians);
         $this->assertInstanceOf(LibrarianEntity::class, $librarians[0]);
         $this->assertSame('librarian@example.com', $librarians[0]->get()['email']->get());
+
+        $repository = new LibrarianRepository($librarians[0]);
+        $repository->save();
+
+        $this->assertDatabaseHas('librarians', [
+            'id' => $this->librarianId,
+            'email' => 'librarian@example.com',
+        ]);
     }
 
     public function test_penalty_repository_queries_and_updates_penalties(): void
@@ -161,6 +169,9 @@ class RepositoryOperationsTest extends TestCase
         $penalties = PenaltyRepository::search([['id', '=', $this->penaltyId]]);
         $this->assertCount(1, $penalties);
         $this->assertInstanceOf(PenaltyEntity::class, $penalties[0]);
+
+        $repository = new PenaltyRepository($penalties[0]);
+        $repository->save();
 
         $this->assertTrue(PenaltyRepository::member_have_unpaid_penalty($this->memberId));
         DB::table('penalties')->where('id', $this->penaltyId)->update(['paid_at' => '2026-11-11']);
