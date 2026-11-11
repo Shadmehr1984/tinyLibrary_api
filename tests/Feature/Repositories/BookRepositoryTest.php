@@ -202,4 +202,18 @@ class BookRepositoryTest extends TestCase
             ]);
         }
     }
+
+    public function test_add_book_with_iran_location(): void
+    {
+        $this->assertDatabaseMissing('books', [
+            'location' => 'iran'
+        ]);
+
+        $book = Book::factory()->for(Category::factory())->iran_location()->create();
+
+        $this->assertDatabaseHas('books', [
+            'isbn' => $book->isbn,
+            'location' => 'iran'
+        ]);
+    }
 }
