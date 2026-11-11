@@ -247,4 +247,93 @@ class RepositoryOperationsTest extends TestCase
             'address' => 'Updated address',
         ]);
     }
+
+    public function test_borrow_repository_saves_entity_with_enum_and_date_value_objects(): void
+    {
+        $entity = new BorrowEntity(
+            $this->borrowId,
+            $this->memberId,
+            $this->bookId,
+            new Date('2000-01-01'),
+            null,
+            null,
+            BorrowStatus::returned,
+            250
+        );
+
+        $repository = new BorrowRepository($entity);
+        $repository->save();
+
+        $this->assertDatabaseHas('borrows', [
+            'id' => $this->borrowId,
+            'status' => 'returned',
+            'penalty_amount' => 250,
+            'borrowed_at' => '2000-01-01',
+        ]);
+    }
+
+    public function test_borrow_repository_search_exposes_invalid_builder_date_type(): void
+    {
+        $this->expectException(\\TypeError::class);
+
+        BorrowRepository::search([['id', '=', $this->borrowId]]);
+    }
+
+    public function test_member_repository_updates_special_value_object_attributes(): void
+    {
+        $member = new MemberEntity(
+            $this->memberId,
+            'Test Member',
+            new Email('member@example.com'),
+            'hashed-password',
+            new Phone('+491234567890'),
+            'Test address',
+            new Date('2020-01-01'),
+            true,
+            0
+        );
+
+        $repository = new MemberRepository($member);
+        $repository->update([
+            'email' => 'updated@example.com',
+            'phone' => '+491234567892',
+            'membership_date' => '2021-02-03',
+        ]);
+        $repository->save();
+
+        $this->assertDatabaseHas('members', [
+            'id' => $this->memberId,
+            'email' => 'updated@example.com',
+            'phone' => '+491234567892',
+            'membership_date' => '2021-02-03',
+        ]);
+    }
+
+    public function test_penalty_repository_throws_when_member_does_not_exist(): void
+    {
+        $this->expectException(MemberNotExistsException::class);
+
+        PenaltyRepository::member_have_unpaid_penalty(999999);
+    }
+
+    public function test_repository_creates_new_model_when_entity_id_does_not_exist(): void
+    {
+        $repository = new CategoryRepository(
+            new CategoryEntity(999999, 'New after missing id', 'New category')
+        );
+
+        $repository->save();
+
+        $this->assertDatabaseHas('categories', [
+            'name' => 'New after missing id',
+        ]);
+    }
+
+    public function test_repository_conversion_requires_a_model_or_attributes_array(): void
+    {
+        $method = new \\ReflectionMethod(\\App\\Repositories\\Repository::class, 'convert_db_format_2_type_class');
+
+        $this->expectException(\\InvalidArgumentException::class);
+        $method->invoke(null, null, null);
+    }
 }
