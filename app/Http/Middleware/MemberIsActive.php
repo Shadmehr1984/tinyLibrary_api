@@ -19,9 +19,8 @@ class MemberIsActive
         $email = $request->user()->email;
         if (!MemberServices::is_active($email)){
             return response()->json([
-                'status-code' => 403,
                 'message' => 'member is de active'
-            ]);
+            ], 403);
         }
         return $next($request);
     }
