@@ -39,7 +39,7 @@ class LibrarianController extends Controller
         if (!$librarian || !Hash::check($request->password, $librarian->password)) {
             return response()->json([
                 'massage' => 'invalid email or password'
-            ]);
+            ], 401);
         }
 
         $token = $librarian->createToken('librarian-token')->plainTextToken;
@@ -48,7 +48,7 @@ class LibrarianController extends Controller
             'massage' => 'successful login, welcome ' . $librarian->name,
             'librarian' => $librarian,
             'token' => $token
-        ]);
+        ], 200);
     }
 
     public function logout()
@@ -62,7 +62,7 @@ class LibrarianController extends Controller
 
         return response()->json([
             'message' => 'successful logout'
-        ]);
+        ], 200);
     }
 
     public function add_book(BookRequest $request)
@@ -70,9 +70,8 @@ class LibrarianController extends Controller
         BookServices::add($request);
 
         return response()->json([
-            'status-code' => 201,
             'message' => 'book created'
-        ]);
+        ], 201);
     }
 
     public function delete_book(BookDeleteRequest $request)
@@ -80,9 +79,8 @@ class LibrarianController extends Controller
         BookServices::delete($request);
 
         return response()->json([
-            'status-code' => 200,
             'message' => 'book deleted'
-        ]);
+        ], 200);
     }
 
     public function search_book(BookSearchRequest $request)
@@ -109,9 +107,8 @@ class LibrarianController extends Controller
         }
 
         return response()->json([
-            'status-code' => 200,
             'books' => $books
-        ]);
+        ], 200);
     }
 
     public function update_book(BookUpdateRequest $request)
@@ -119,9 +116,8 @@ class LibrarianController extends Controller
         BookServices::update($request);
 
         return response()->json([
-            'status-code' => 200,
             'message' => 'book updated'
-        ]);
+        ], 200);
     }
 
     public function add_member(MemberRequest $request)
@@ -129,9 +125,8 @@ class LibrarianController extends Controller
         MemberServices::add($request);
 
         return response()->json([
-            'status-code' => 201,
             'message' => 'member created'
-        ]);
+        ], 201);
     }
 
     public function deactivate_member(MemberDeactivateRequest $request)
@@ -139,9 +134,8 @@ class LibrarianController extends Controller
         MemberServices::deactivate($request);
 
         return response()->json([
-            'status-code' => 200,
             'message' => 'member deactivated'
-        ]);
+        ], 200);
     }
 
     public function activate_member(MemberActivateRequest $request)
@@ -149,9 +143,8 @@ class LibrarianController extends Controller
         MemberServices::activate($request);
 
         return response()->json([
-            'status-code' => 200,
             'message' => 'member activated'
-        ]);
+        ], 200);
     }
 
     public function delete_member(MemberDeleteRequest $request)
@@ -159,9 +152,8 @@ class LibrarianController extends Controller
         MemberServices::delete($request);
 
         return response()->json([
-            'status-code' => 200,
             'message' => 'member deleted'
-        ]);
+        ], 200);
     }
 
     public function search_member(MemberSearchRequest $request)
@@ -178,9 +170,8 @@ class LibrarianController extends Controller
         }
 
         return response()->json([
-            'status-code' => 200,
             'members' => $members
-        ]);
+        ], 200);
     }
 
     public function update_member(MemberUpdateRequest $request)
@@ -188,9 +179,8 @@ class LibrarianController extends Controller
         MemberServices::update($request);
 
         return response()->json([
-            'status-code' => 200,
             'message' => 'member updated'
-        ]);
+        ], 200);
     }
 
     public function add_category(CategoryRequest $request)
@@ -198,9 +188,8 @@ class LibrarianController extends Controller
         CategoryServices::add($request);
 
         return response()->json([
-            'status-code' => 201,
             'message' => 'category created'
-        ]);
+        ], 201);
     }
 
     public function delete_category(CategoryDeleteRequest $request)
@@ -208,9 +197,8 @@ class LibrarianController extends Controller
         CategoryServices::delete($request);
 
         return response()->json([
-            'status-code' => 200,
             'message' => 'category deleted'
-        ]);
+        ], 200);
     }
 
     public function search_category(CategorySearchRequest $request)
@@ -224,9 +212,8 @@ class LibrarianController extends Controller
         }
 
         return response()->json([
-            'status-code' => 200,
             'categories' => $categories
-        ]);
+        ], 200);
     }
 
     public function update_category(CategoryUpdateRequest $request)
@@ -234,9 +221,8 @@ class LibrarianController extends Controller
         CategoryServices::update($request);
 
         return response()->json([
-            'status-code' => 200,
             'message' => 'category updated'
-        ]);
+        ], 200);
     }
 
     public function pay_penalty(PenaltyPayRequest $request)
@@ -245,14 +231,12 @@ class LibrarianController extends Controller
             PenaltyServices::pay($request);
         } catch (PenaltyAlreadyPaidException $exception) {
             return response()->json([
-                'status-code' => 400,
                 'message' => $exception->getMessage()
-            ]);
+            ], 409);
         }
 
         return response()->json([
-            'status-code' => 201,
             'message' => 'penalty paid successfully'
-        ]);
+        ], 200);
     }
 }
