@@ -27,7 +27,7 @@ class MemberController extends Controller
         if (!$member || !Hash::check($request->password, $member->password) || !MemberServices::is_active($request->email)) {
             return response()->json([
                 'message' => 'invalid email or password'
-            ], 401);
+            ], 401, 401);
         }
 
         $token = $member->createToken('member-token')->plainTextToken;
@@ -36,7 +36,7 @@ class MemberController extends Controller
             'massage' => 'successful login, welcome ' . $member->name,
             'member' => $member,
             'token' => $token
-        ], 201);
+        ], 201, 200);
     }
 
     public function logout()
@@ -50,9 +50,8 @@ class MemberController extends Controller
         $member->currentAccessToken()->delete();
 
         return response()->json([
-            'status-code' => 200,
             'message' => "successful logout"
-        ]);
+        ], 200);
     }
 
     public function search_book(BookSearchRequest $request)
@@ -77,9 +76,8 @@ class MemberController extends Controller
         }
 
         return response()->json([
-            'status-code' => 200,
             'books' => $books
-        ]);
+        ], 200);
     }
 
     public function add_borrow(BorrowRequest $request)
@@ -88,31 +86,27 @@ class MemberController extends Controller
 
         if (PenaltyServices::member_have_unpaid_penalty($request->member_id)) {
             return response()->json([
-                'status-code' => 400,
                 'message' => 'you have unpaid penalties, first paid your penalties'
-            ]);
+            ], 403);
         }
 
         if (PenaltyServices::member_reach_borrow_limit($request->member_id)) {
             return response()->json([
-                'status-code' => 400,
                 'message' => 'you reach max borrows limit'
-            ]);
+            ], 409);
         }
 
         if (!BookServices::is_available($request->book_id)) {
             return response()->json([
-                'status-code' => 400,
                 'message' => 'book is not available'
-            ]);
+            ], 409);
         }
 
         BorrowServices::add($request);
 
         return response()->json([
-            'status-code' => 201,
             'message' => 'borrow book successful'
-        ]);
+        ], 201);
     }
 
     public function search_borrow(BorrowSearchRequest $request)
@@ -129,26 +123,23 @@ class MemberController extends Controller
         }
 
         return response()->json([
-            'status-code' => 200,
             'borrows' => $borrows
-        ]);
+        ], 200);
     }
 
     public function back_borrow(BorrowBackRequest $request)
     {
         if (PenaltyServices::member_have_unpaid_penalty($request->user()->id)) {
             return response()->json([
-                'status-code' => 400,
                 'message' => 'you have unpaid penalties, first paid your penalties'
-            ]);
+            ], 403);
         }
 
         BorrowServices::back($request);
 
         return response()->json([
-            'status-code' => 200,
             'message' => 'book back'
-        ]);
+        ], 200);
     }
 
     public function search_penalty(PenaltySearchRequest $request)
@@ -165,8 +156,7 @@ class MemberController extends Controller
         }
 
         return response()->json([
-            'status-code' => 200,
             'penalties' => $penalties
-        ]);
+        ], 200);
     }
 }
