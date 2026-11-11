@@ -272,11 +272,13 @@ class RepositoryOperationsTest extends TestCase
         ]);
     }
 
-    public function test_borrow_repository_search_exposes_invalid_builder_date_type(): void
+    public function test_borrow_repository_search_returns_borrow_entity(): void
     {
-        $this->expectException(\\TypeError::class);
+        $borrows = BorrowRepository::search([['id', '=', $this->borrowId]]);
 
-        BorrowRepository::search([['id', '=', $this->borrowId]]);
+        $this->assertCount(1, $borrows);
+        $this->assertInstanceOf(BorrowEntity::class, $borrows[0]);
+        $this->assertSame($this->borrowId, $borrows[0]->get()['id']);
     }
 
     public function test_member_repository_updates_special_value_object_attributes(): void
