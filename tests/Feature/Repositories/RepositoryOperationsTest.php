@@ -224,6 +224,16 @@ class RepositoryOperationsTest extends TestCase
         $repository = new BorrowRepository($entity);
         $this->assertInstanceOf(BorrowRepository::class, $repository);
 
+        DB::table('borrows')->insert([
+            'member_id' => $this->memberId,
+            'book_id' => $this->bookId,
+            'borrowed_at' => Date::now()->get(),
+            'due_date' => null,
+            'returned_at' => null,
+            'status' => 'borrowed',
+            'penalty_amount' => 0,
+        ]);
+
         $delayed = BorrowRepository::delayed_borrows();
 
         $this->assertCount(1, $delayed);
@@ -350,5 +360,15 @@ class RepositoryOperationsTest extends TestCase
         $model = null;
         $attributes = null;
         $method->invokeArgs(null, [&$model, &$attributes]);
+    }
+
+    public function test_repository_attribute_conversion_falls_back_for_backed_enums(): void
+    {
+        $method = new \\ReflectionMethod(BorrowRepository::class, 'convert_db_format_2_type_class');
+        $attributes = ['status' => 'returned'];
+
+        $method->invokeArgs(null, [null, &$attributes]);
+
+        $this->assertSame('returned', $attributes['status']);
     }
 }
