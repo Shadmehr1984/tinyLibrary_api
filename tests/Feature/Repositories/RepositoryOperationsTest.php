@@ -356,7 +356,7 @@ class RepositoryOperationsTest extends TestCase
     {
         $method = new \ReflectionMethod(\App\Repositories\Repository::class, 'convert_db_format_2_type_class');
 
-        $this->expectException(\\InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $model = null;
         $attributes = null;
         $method->invokeArgs(null, [&$model, &$attributes]);
@@ -364,7 +364,7 @@ class RepositoryOperationsTest extends TestCase
 
     public function test_repository_attribute_conversion_falls_back_for_backed_enums(): void
     {
-        $method = new \\ReflectionMethod(BorrowRepository::class, 'convert_db_format_2_type_class');
+        $method = new \ReflectionMethod(BorrowRepository::class, 'convert_db_format_2_type_class');
         $attributes = ['status' => 'returned'];
 
         $method->invokeArgs(null, [null, &$attributes]);
