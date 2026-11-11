@@ -10,6 +10,13 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class BookFactory extends Factory
 {
+    public function unavailable(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'available_copies' => 0,
+        ]);
+    }
+
     /**
      * Define the model's default state.
      *
