@@ -27,7 +27,7 @@ class MemberController extends Controller
         if (!$member || !Hash::check($request->password, $member->password) || !MemberServices::is_active($request->email)) {
             return response()->json([
                 'message' => 'invalid email or password'
-            ], 401, 401);
+            ], 401);
         }
 
         $token = $member->createToken('member-token')->plainTextToken;
@@ -36,7 +36,7 @@ class MemberController extends Controller
             'massage' => 'successful login, welcome ' . $member->name,
             'member' => $member,
             'token' => $token
-        ], 201, 200);
+        ], 200);
     }
 
     public function logout()
