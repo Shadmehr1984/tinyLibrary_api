@@ -34,7 +34,7 @@ class BookFactory extends Factory
         return [
             'title' => fake()->streetName(),
             'author' => fake()->name(),
-            'isbn' => fake()->isbn13(),
+            'isbn' => str_replace('-', '', fake()->isbn13()),
             'published' => fake()->date(),
             'publisher' => fake()->name(),
             'category_id' => fake()->numberBetween(1, 20),
