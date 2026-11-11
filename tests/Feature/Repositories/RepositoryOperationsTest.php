@@ -333,9 +333,11 @@ class RepositoryOperationsTest extends TestCase
 
     public function test_repository_conversion_requires_a_model_or_attributes_array(): void
     {
-        $method = new \\ReflectionMethod(\\App\\Repositories\\Repository::class, 'convert_db_format_2_type_class');
+        $method = new \ReflectionMethod(\App\Repositories\Repository::class, 'convert_db_format_2_type_class');
 
         $this->expectException(\\InvalidArgumentException::class);
-        $method->invoke(null, null, null);
+        $model = null;
+        $attributes = null;
+        $method->invokeArgs(null, [&$model, &$attributes]);
     }
 }
