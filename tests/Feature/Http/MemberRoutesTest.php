@@ -510,13 +510,53 @@ class MemberRoutesTest extends TestCase
 
         $response = $this->withToken($token)->postJson('api/v1/member/search_book', $data);
 
-        //$response->ddBody();
-        $expected = ['books' => [
+        $response->assertOk();
+        $response->assertJsonCount(1, 'books');
+        $response->assertJsonPath('books.0.title', 'hojjat daily');
+    }
+
+    public function test_search_book_endpoint_return_zero_books_when_book_title_not_exists(): void
+    {
+        [$member, $token] = $this->authenticated_member();
+
+        Book::factory()->for(Category::factory())->create(
             [
-                'title' => "hojjat daily"
+                'title' => 'hojjat daily'
             ]
-        ]];
-        
-        $response->assertJson($expected);
+        );
+
+        $data = [
+            'title' => 'random'
+        ];
+
+        $response = $this->withToken($token)->postJson('api/v1/member/search_book', $data);
+
+        $response->assertOk();
+        $response->assertJsonCount(0, 'books');
+        $response->assertJsonPath('books', []);
+    }
+
+    public function test_search_book_endpoint_return_books_with_special_author_name(): void
+    {
+        [$member, $token] = $this->authenticated_member();
+
+        Book::factory(2)->for(Category::factory())->create(
+            [
+                'author' => 'hojjat'
+            ]
+        );
+
+        Book::factory(3)->for(Category::factory())->create();
+
+        $data = [
+            'author' => 'hojjat'
+        ];
+
+        $response = $this->withToken($token)->postJson('api/v1/member/search_book', $data);
+
+        $response->assertOk();
+        $response->assertJsonCount(2, 'books');
+        $response->assertJsonPath('books.0.author', 'hojjat');
+        $response->assertJsonPath('books.1.author', 'hojjat');
     }
 }
