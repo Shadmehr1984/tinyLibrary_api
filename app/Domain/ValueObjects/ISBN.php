@@ -24,9 +24,9 @@ class ISBN
         $isbn_characters = str_split($isbn);
 
         //validate numeric characters
-        foreach ($isbn_characters as $index) {
-            if (!is_numeric($isbn_characters[$index])) {
-                throw new \InvalidArgumentException("character {$index}th must be numeric");
+        foreach ($isbn_characters as $char) {
+            if (!is_numeric($char)) {
+                throw new \InvalidArgumentException("character {$char} must be numeric");
             }
         }
     }
