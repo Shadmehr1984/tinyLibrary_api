@@ -450,7 +450,7 @@ class MemberRoutesTest extends TestCase
         [$member, $token] = $this->authenticated_member();
 
         $data = [
-            'available' => $wrong_not_available
+            'not_available' => $wrong_not_available
         ];
 
         $response = $this->withToken($token)->postJson('api/v1/member/search_book', $data);
