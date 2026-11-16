@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Member;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Redis;
 use Laravel\Sanctum\PersonalAccessToken;
 use Tests\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -513,6 +514,8 @@ class MemberRoutesTest extends TestCase
         $response->assertOk();
         $response->assertJsonCount(1, 'books');
         $response->assertJsonPath('books.0.title', 'hojjat daily');
+
+        Redis::flushAll();
     }
 
     public function test_search_book_endpoint_return_zero_books_when_book_title_not_exists(): void
@@ -534,6 +537,8 @@ class MemberRoutesTest extends TestCase
         $response->assertOk();
         $response->assertJsonCount(0, 'books');
         $response->assertJsonPath('books', []);
+
+        Redis::flushAll();
     }
 
     public function test_search_book_endpoint_return_books_with_special_author_name(): void
@@ -558,5 +563,174 @@ class MemberRoutesTest extends TestCase
         $response->assertJsonCount(2, 'books');
         $response->assertJsonPath('books.0.author', 'hojjat');
         $response->assertJsonPath('books.1.author', 'hojjat');
+
+        Redis::flushAll();
+    }
+
+    public function test_search_book_endpoint_return_books_with_special_published_date(): void
+    {
+        [$member, $token] = $this->authenticated_member();
+
+        Book::factory(2)->for(Category::factory())->create(
+            [
+                'published' => '2005-04-20'
+            ]
+        );
+
+        Book::factory(3)->for(Category::factory())->create();
+
+        $data = [
+            'published' => '2005-04-20'
+        ];
+
+        $response = $this->withToken($token)->postJson('api/v1/member/search_book', $data);
+
+        $response->assertOk();
+        $response->assertJsonCount(2, 'books');
+        $response->assertJsonPath('books.0.published', '2005-04-20');
+        $response->assertJsonPath('books.1.published', '2005-04-20');
+
+        Redis::flushAll();
+    }
+
+    public function test_search_book_endpoint_return_books_with_published_date_before_special_published_date(): void
+    {
+        [$member, $token] = $this->authenticated_member();
+
+        Book::factory(2)->for(Category::factory())->create(
+            [
+                'published' => '2055-04-20'
+            ]
+        );
+
+        Book::factory(3)->for(Category::factory())->create();
+
+        $data = [
+            'published_before' => '2055-04-20'
+        ];
+
+        $response = $this->withToken($token)->postJson('api/v1/member/search_book', $data);
+
+        $response->assertOk();
+        $response->assertJsonCount(3, 'books');
+
+        $should_missing_data = [
+            'books' => [
+                [
+                    'published' => '2055-04-20'
+                ]
+            ]
+        ];
+
+        $response->assertJsonMissing($should_missing_data);
+
+        Redis::flushAll();
+    }
+
+    public function test_search_book_endpoint_return_books_with_published_date_after_special_published_date(): void
+    {
+        [$member, $token] = $this->authenticated_member();
+
+        Book::factory(2)->for(Category::factory())->create(
+            [
+                'published' => '1055-04-20'
+            ]
+        );
+
+        Book::factory(3)->for(Category::factory())->create();
+
+        $data = [
+            'published_after' => '1055-04-20'
+        ];
+
+        $response = $this->withToken($token)->postJson('api/v1/member/search_book', $data);
+
+        $response->assertOk();
+        $response->assertJsonCount(3, 'books');
+
+        $should_missing_data = [
+            'books' => [
+                [
+                    'published' => '1055-04-20'
+                ]
+            ]
+        ];
+
+        $response->assertJsonMissing($should_missing_data);
+
+        Redis::flushAll();
+    }
+
+    public function test_search_book_endpoint_return_books_with_special_isbn(): void
+    {
+        [$member, $token] = $this->authenticated_member();
+
+        Book::factory()->for(Category::factory())->create(
+            [
+                'isbn' => '8745612345784'
+            ]
+        );
+
+        Book::factory(3)->for(Category::factory())->create();
+
+        $data = [
+            'isbn' => '8745612345784'
+        ];
+
+        $response = $this->withToken($token)->postJson('api/v1/member/search_book', $data);
+
+        $response->assertOk();
+        $response->assertJsonCount(1, 'books');
+        $response->assertJsonPath('books.0.isbn', '8745612345784');
+
+        Redis::flushAll();
+    }
+
+    public function test_search_book_endpoint_return_books_with_special_publisher(): void
+    {
+        [$member, $token] = $this->authenticated_member();
+
+        Book::factory(2)->for(Category::factory())->create(
+            [
+                'publisher' => 'hojjat company'
+            ]
+        );
+
+        Book::factory(3)->for(Category::factory())->create();
+
+        $data = [
+            'publisher' => 'hojjat company'
+        ];
+
+        $response = $this->withToken($token)->postJson('api/v1/member/search_book', $data);
+
+        $response->assertOk();
+        $response->assertJsonCount(2, 'books');
+        $response->assertJsonPath('books.0.publisher', 'hojjat company');
+        $response->assertJsonPath('books.1.publisher', 'hojjat company');
+
+        Redis::flushAll();
+    }
+
+    public function test_search_book_endpoint_return_books_with_special_category_id(): void
+    {
+        [$member, $token] = $this->authenticated_member();
+
+        Book::factory(2)->for(Category::factory()->create(['id' => 1]))->create();
+
+        Book::factory(3)->for(Category::factory())->create();
+
+        $data = [
+            'category_id' => 1
+        ];
+
+        $response = $this->withToken($token)->postJson('api/v1/member/search_book', $data);
+
+        $response->assertOk();
+        $response->assertJsonCount(2, 'books');
+        $response->assertJsonPath('books.0.category_id', 1);
+        $response->assertJsonPath('books.1.category_id', 1);
+
+        Redis::flushAll();
     }
 }
