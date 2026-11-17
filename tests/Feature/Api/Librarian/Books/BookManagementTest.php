@@ -181,4 +181,14 @@ class BookManagementTest extends ApiTestCase
             ->assertJsonPath('books.0.isbn', '9780306406157');
     }
 
+    public function test_book_search_rejects_mutually_exclusive_availability_filters(): void
+    {
+        $this->authenticateAsLibrarian(TestDataFactory::librarian())
+            ->postJson('/v1/librarian/search_book', [
+                'available' => true,
+                'not_available' => true,
+            ])->assertUnprocessable()
+            ->assertJsonValidationErrors(['available', 'not_available']);
+    }
+
 }
