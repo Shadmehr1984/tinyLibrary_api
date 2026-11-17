@@ -21,7 +21,7 @@ class BorrowManagementTest extends ApiTestCase
         ]);
 
         $this->authenticateAsMember($member)
-            ->postJson('/v1/member/add_borrow', [
+            ->postJson('/api/v1/member/add_borrow', [
                 'book_id' => $book->id,
                 'member_id' => $otherMember->id,
             ])->assertCreated()
@@ -45,7 +45,7 @@ class BorrowManagementTest extends ApiTestCase
         $newBook = TestDataFactory::book(null, ['isbn' => '9780306406157']);
 
         $this->authenticateAsMember($member)
-            ->postJson('/v1/member/add_borrow', ['book_id' => $newBook->id])
+            ->postJson('/api/v1/member/add_borrow', ['book_id' => $newBook->id])
             ->assertForbidden()
             ->assertJsonPath('message', 'you have unpaid penalties, first paid your penalties');
     }
@@ -66,7 +66,7 @@ class BorrowManagementTest extends ApiTestCase
         $fourthBook = TestDataFactory::book(null, ['isbn' => '9780306406188']);
 
         $this->authenticateAsMember($member)
-            ->postJson('/v1/member/add_borrow', ['book_id' => $fourthBook->id])
+            ->postJson('/api/v1/member/add_borrow', ['book_id' => $fourthBook->id])
             ->assertStatus(409)
             ->assertJsonPath('message', 'you reach max borrows limit');
     }
@@ -81,7 +81,7 @@ class BorrowManagementTest extends ApiTestCase
         ]);
 
         $this->authenticateAsMember($member)
-            ->postJson('/v1/member/add_borrow', ['book_id' => $book->id])
+            ->postJson('/api/v1/member/add_borrow', ['book_id' => $book->id])
             ->assertStatus(409)
             ->assertJsonPath('message', 'book is not available');
     }
@@ -97,7 +97,7 @@ class BorrowManagementTest extends ApiTestCase
         $otherBorrow = TestDataFactory::borrow($otherMember, $otherBook);
 
         $this->authenticateAsMember($member)
-            ->postJson('/v1/member/search_borrow', ['member_id' => $otherMember->id])
+            ->postJson('/api/v1/member/search_borrow', ['member_id' => $otherMember->id])
             ->assertOk()
             ->assertJsonFragment(['id' => $ownBorrow->id])
             ->assertJsonMissing(['id' => $otherBorrow->id]);
@@ -123,7 +123,7 @@ class BorrowManagementTest extends ApiTestCase
         ]);
 
         $this->authenticateAsMember($member)
-            ->postJson('/v1/member/search_borrow', ['status' => 'returned'])
+            ->postJson('/api/v1/member/search_borrow', ['status' => 'returned'])
             ->assertOk()
             ->assertJsonFragment(['id' => $returnedBorrow->id])
             ->assertJsonMissing(['id' => $activeBorrow->id])
@@ -135,7 +135,7 @@ class BorrowManagementTest extends ApiTestCase
         $member = TestDataFactory::member();
 
         $this->authenticateAsMember($member)
-            ->postJson('/v1/member/search_borrow', ['status' => 'pending'])
+            ->postJson('/api/v1/member/search_borrow', ['status' => 'pending'])
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['status']);
     }
@@ -154,7 +154,7 @@ class BorrowManagementTest extends ApiTestCase
         ]);
 
         $this->authenticateAsMember($member)
-            ->postJson('/v1/member/search_borrow', ['due_date_after' => '2025-01-15'])
+            ->postJson('/api/v1/member/search_borrow', ['due_date_after' => '2025-01-15'])
             ->assertOk()
             ->assertJsonFragment(['id' => $laterBorrow->id])
             ->assertJsonMissing(['id' => $earlierBorrow->id]);
@@ -165,7 +165,7 @@ class BorrowManagementTest extends ApiTestCase
         $member = TestDataFactory::member();
 
         $this->authenticateAsMember($member)
-            ->postJson('/v1/member/search_borrow', [
+            ->postJson('/api/v1/member/search_borrow', [
                 'status' => 'borrowed',
                 'limit' => 0,
             ])
@@ -184,7 +184,7 @@ class BorrowManagementTest extends ApiTestCase
         $borrow = TestDataFactory::borrow($member, $book);
 
         $this->authenticateAsMember($member)
-            ->putJson('/v1/member/back_borrow', ['id' => $borrow->id])
+            ->putJson('/api/v1/member/back_borrow', ['id' => $borrow->id])
             ->assertOk()
             ->assertJsonPath('message', 'book back');
 
@@ -203,7 +203,7 @@ class BorrowManagementTest extends ApiTestCase
         $borrow = TestDataFactory::borrow($otherMember, $book);
 
         $this->authenticateAsMember($member)
-            ->putJson('/v1/member/back_borrow', ['id' => $borrow->id])
+            ->putJson('/api/v1/member/back_borrow', ['id' => $borrow->id])
             ->assertUnprocessable();
     }
 
@@ -217,7 +217,7 @@ class BorrowManagementTest extends ApiTestCase
         ]);
 
         $this->authenticateAsMember($member)
-            ->putJson('/v1/member/back_borrow', ['id' => $borrow->id])
+            ->putJson('/api/v1/member/back_borrow', ['id' => $borrow->id])
             ->assertUnprocessable();
     }
 
@@ -229,7 +229,7 @@ class BorrowManagementTest extends ApiTestCase
         TestDataFactory::penalty($member, $borrow);
 
         $this->authenticateAsMember($member)
-            ->putJson('/v1/member/back_borrow', ['id' => $borrow->id])
+            ->putJson('/api/v1/member/back_borrow', ['id' => $borrow->id])
             ->assertForbidden()
             ->assertJsonPath('message', 'you have unpaid penalties, first paid your penalties');
     }
@@ -242,7 +242,7 @@ class BorrowManagementTest extends ApiTestCase
         ]);
 
         $this->authenticateAsMember($member)
-            ->postJson('/v1/member/add_borrow', ['book_id' => $book->id])
+            ->postJson('/api/v1/member/add_borrow', ['book_id' => $book->id])
             ->assertUnprocessable();
 
         $this->assertDatabaseCount('borrows', 1);
@@ -262,14 +262,14 @@ class BorrowManagementTest extends ApiTestCase
         ]);
 
         $this->authenticateAsLibrarian($librarian)
-            ->putJson('/v1/librarian/pay_penalty', ['id' => $penalty->id])
+            ->putJson('/api/v1/librarian/pay_penalty', ['id' => $penalty->id])
             ->assertOk()
             ->assertJsonPath('message', 'penalty paid successfully');
 
         $this->assertNotNull($penalty->fresh()->paid_at);
 
         $this->authenticateAsMember($member)
-            ->postJson('/v1/member/add_borrow', ['book_id' => $newBook->id])
+            ->postJson('/api/v1/member/add_borrow', ['book_id' => $newBook->id])
             ->assertCreated()
             ->assertJsonPath('message', 'borrow book successful');
 
