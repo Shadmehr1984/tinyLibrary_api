@@ -156,4 +156,24 @@ class MemberManagementTest extends ApiTestCase
         $this->assertTrue(Hash::check('new-member-password', $updatedMember->password));
     }
 
+
+    public function test_member_search_matches_a_partial_name(): void
+    {
+        $librarian = TestDataFactory::librarian();
+        $matching = TestDataFactory::member([
+            'name' => 'Ada Lovelace',
+            'email' => 'ada-lovelace@example.test',
+        ]);
+        $other = TestDataFactory::member([
+            'name' => 'Grace Hopper',
+            'email' => 'grace-hopper@example.test',
+        ]);
+
+        $this->authenticateAsLibrarian($librarian)
+            ->postJson('/v1/librarian/search_member', ['name' => 'Ada'])
+            ->assertOk()
+            ->assertJsonFragment(['id' => $matching->id])
+            ->assertJsonMissing(['id' => $other->id]);
+    }
+
 }
