@@ -8,6 +8,7 @@ use App\Domain\Builders\Builder;
 use App\Domain\Entities\Entity;
 use Error;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 
 class Repository implements RepositoryInterface
 {
@@ -181,9 +182,17 @@ class Repository implements RepositoryInterface
     protected static function set_attributes_name()
     {
         if (static::$attributes_name) return;
-        foreach (static::$model_class::first()->getAttributes() as $key => $value) {
-            if ($key == 'remember_token') continue; //remove special attribute
-            static::$attributes_name[] = $key;
+
+        $model = new static::$model_class();
+
+        $columns = Schema::getColumnListing(
+            $model->getTable()
+        );
+
+        foreach ($columns as $column) {
+            if ($column === 'remember_token') continue; //remove special attribute
+
+            static::$attributes_name[] = $column;
         }
     }
 }
