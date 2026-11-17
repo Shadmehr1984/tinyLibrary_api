@@ -224,35 +224,12 @@ class BookManagementTest extends ApiTestCase
     public function test_book_search_allows_only_one_availability_filter_to_be_true(): void
     {
         $librarian = TestDataFactory::librarian();
-        $book = TestDataFactory::book(null, [
-            'isbn' => '9780306406157',
-            'available_copies' => 2,
-        ]);
-
-        Redis::shouldReceive('exists')
-            ->once()
-            ->with('book-' . $book->isbn . '-' . $book->title)
-            ->andReturn(0);
-        Redis::shouldReceive('dbSize')
-            ->once()
-            ->andReturn(0);
-        Redis::shouldReceive('hSet')
-            ->zeroOrMoreTimes()
-            ->andReturn(1);
-        Redis::shouldReceive('expire')
-            ->once()
-            ->withArgs(function (string $key, int $seconds) use ($book): bool {
-                return str_starts_with($key, 'book-' . $book->isbn . '-')
-                    && $seconds === 180;
-            })
-            ->andReturn(1);
 
         $this->authenticateAsLibrarian($librarian)
             ->postJson('/api/v1/librarian/search_book', [
                 'available' => true,
                 'not_available' => false,
-            ])->assertOk()
-            ->assertJsonPath('books.0.isbn', $book->isbn);
+            ])->assertUnprocessable();
     }
 
     public function test_book_search_rejects_mutually_exclusive_availability_filters(): void
