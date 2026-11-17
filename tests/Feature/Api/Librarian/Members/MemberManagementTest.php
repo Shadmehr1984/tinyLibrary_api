@@ -16,7 +16,7 @@ class MemberManagementTest extends ApiTestCase
         $librarian = TestDataFactory::librarian();
 
         $this->authenticateAsLibrarian($librarian)
-            ->postJson('/v1/librarian/add_member', [
+            ->postJson('/api/v1/librarian/add_member', [
                 'name' => 'New Library Member',
                 'email' => 'new-member@example.test',
                 'password' => 'member-password',
@@ -41,13 +41,13 @@ class MemberManagementTest extends ApiTestCase
         $member = TestDataFactory::member(['email' => 'status-member@example.test']);
 
         $this->authenticateAsLibrarian($librarian)
-            ->putJson('/v1/librarian/deactivate_member', ['email' => $member->email])
+            ->putJson('/api/v1/librarian/deactivate_member', ['email' => $member->email])
             ->assertOk()
             ->assertJsonPath('message', 'member deactivated');
 
         $this->assertDatabaseHas('members', ['id' => $member->id, 'active' => false]);
 
-        $this->putJson('/v1/librarian/activate_member', ['email' => $member->email])
+        $this->putJson('/api/v1/librarian/activate_member', ['email' => $member->email])
             ->assertOk()
             ->assertJsonPath('message', 'member activated');
 
@@ -60,7 +60,7 @@ class MemberManagementTest extends ApiTestCase
         $member = TestDataFactory::member(['email' => 'update-member@example.test']);
 
         $this->authenticateAsLibrarian($librarian)
-            ->putJson('/v1/librarian/update_member', [
+            ->putJson('/api/v1/librarian/update_member', [
                 'target_email' => $member->email,
                 'name' => 'Updated Member Name',
                 'address' => 'Updated Address',
@@ -80,7 +80,7 @@ class MemberManagementTest extends ApiTestCase
         $member = TestDataFactory::member(['email' => 'search-member@example.test']);
 
         $this->authenticateAsLibrarian($librarian)
-            ->postJson('/v1/librarian/search_member', ['email' => $member->email])
+            ->postJson('/api/v1/librarian/search_member', ['email' => $member->email])
             ->assertOk()
             ->assertJsonPath('members.0.email', $member->email)
             ->assertJsonMissingPath('members.0.password');
@@ -92,7 +92,7 @@ class MemberManagementTest extends ApiTestCase
         $member = TestDataFactory::member(['email' => 'delete-member@example.test']);
 
         $this->authenticateAsLibrarian($librarian)
-            ->deleteJson('/v1/librarian/delete_member', ['email' => $member->email])
+            ->deleteJson('/api/v1/librarian/delete_member', ['email' => $member->email])
             ->assertOk()
             ->assertJsonPath('message', 'member deleted');
 
@@ -103,7 +103,7 @@ class MemberManagementTest extends ApiTestCase
     public function test_member_search_rejects_a_request_without_any_search_criteria(): void
     {
         $this->authenticateAsLibrarian(TestDataFactory::librarian())
-            ->postJson('/v1/librarian/search_member', [])
+            ->postJson('/api/v1/librarian/search_member', [])
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['_check']);
     }
@@ -121,7 +121,7 @@ class MemberManagementTest extends ApiTestCase
         ]);
 
         $this->authenticateAsLibrarian($librarian)
-            ->postJson('/v1/librarian/search_member', ['active' => false])
+            ->postJson('/api/v1/librarian/search_member', ['active' => false])
             ->assertOk()
             ->assertJsonFragment(['email' => $inactiveMember->email])
             ->assertJsonMissing(['email' => $activeMember->email]);
@@ -130,7 +130,7 @@ class MemberManagementTest extends ApiTestCase
     public function test_add_member_rejects_an_invalid_phone_number(): void
     {
         $this->authenticateAsLibrarian(TestDataFactory::librarian())
-            ->postJson('/v1/librarian/add_member', [
+            ->postJson('/api/v1/librarian/add_member', [
                 'name' => 'Invalid Phone Member',
                 'email' => 'invalid-phone@example.test',
                 'password' => 'member-password',
@@ -146,7 +146,7 @@ class MemberManagementTest extends ApiTestCase
         $member = TestDataFactory::member(['email' => 'password-update@example.test']);
 
         $this->authenticateAsLibrarian($librarian)
-            ->putJson('/v1/librarian/update_member', [
+            ->putJson('/api/v1/librarian/update_member', [
                 'target_email' => $member->email,
                 'password' => 'new-member-password',
             ])->assertOk();
@@ -170,7 +170,7 @@ class MemberManagementTest extends ApiTestCase
         ]);
 
         $this->authenticateAsLibrarian($librarian)
-            ->postJson('/v1/librarian/search_member', ['name' => 'Ada'])
+            ->postJson('/api/v1/librarian/search_member', ['name' => 'Ada'])
             ->assertOk()
             ->assertJsonFragment(['id' => $matching->id])
             ->assertJsonMissing(['id' => $other->id]);
