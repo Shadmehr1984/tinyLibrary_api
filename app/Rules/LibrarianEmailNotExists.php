@@ -16,8 +16,11 @@ class LibrarianEmailNotExists implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $email = DB::table('librarians')->select(['email'])->where('email', '=', $value)->get();
-        if($email){
+        $emailExists = DB::table('librarians')
+            ->where('email', '=', $value)
+            ->exists();
+
+        if ($emailExists) {
             $fail('email '.$value.' already exists');
         }
     }
