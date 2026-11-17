@@ -154,3 +154,9 @@ No production code or API contract was changed. No tests were run during this so
 - Contract scenario: librarian searches members with `active: false`; results should contain inactive members and exclude active members.
 - Added a feature test that seeds one inactive and one active member and asserts this filtering behavior.
 - Source defect candidate: `MemberServices::search()` uses loose `== null` to skip absent criteria. Since `false == null` evaluates true in PHP, an explicit false filter may be treated as absent and omitted from repository conditions. The test has not been executed; production code remains unchanged.
+
+
+### Member and category search — empty criteria validation
+
+- Added empty-payload API regression tests for `POST /v1/librarian/search_member` and `POST /v1/librarian/search_category`, expecting 422 with an `_check` validation error.
+- Both Form Requests unconditionally merge `_check = 'dummy'` in `prepareForValidation()`, which appears to bypass their own `required_without_all` rule. These tests record the expected non-empty search contract; execution pending.
