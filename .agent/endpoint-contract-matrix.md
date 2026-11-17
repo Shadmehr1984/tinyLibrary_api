@@ -120,3 +120,10 @@ No production code or API contract was changed. No tests were run during this so
 - Added an API-level regression test for changing a book's ISBN to a valid, unused ISBN. It asserts HTTP success and persistence of the new ISBN.
 - Source inspection confirms `BookIsbnNotExistsRule` uses `if ($isbn)` where `$isbn` is the Collection returned by Query Builder `get()`. Empty Collection objects are truthy in PHP, so this condition does not distinguish an existing ISBN from an unused one. The rule may therefore reject every ISBN update. This is a source-level defect candidate; runtime behavior remains unverified.
 - The test is intentionally written against the expected valid update contract and may fail until the rule is corrected. No production code or API contract was modified.
+
+
+### Phase 6 search validation update (2026-11-17)
+
+- Added librarian API coverage rejecting `limit=0` and a non-existent `category_id`.
+- Added positive-path coverage for `available=true` together with `not_available=false`. The custom `CanNotSetWithOtherFieldRule` checks `isset($other_field)`; false is not considered set, while the existing both-true case remains invalid.
+- These tests are authored but unexecuted. No production code or API contract was changed.
