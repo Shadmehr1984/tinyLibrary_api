@@ -127,3 +127,10 @@ No production code or API contract was changed. No tests were run during this so
 - Added librarian API coverage rejecting `limit=0` and a non-existent `category_id`.
 - Added positive-path coverage for `available=true` together with `not_available=false`. The custom `CanNotSetWithOtherFieldRule` checks `isset($other_field)`; false is not considered set, while the existing both-true case remains invalid.
 - These tests are authored but unexecuted. No production code or API contract was changed.
+
+
+### Phase 6 — additional librarian book-search validation (2026-11-17)
+
+- `limit=0` is rejected by the declared `integer|gt:0` validation; an unknown `category_id` is rejected by `exists:categories,id`. Both are now covered in one HTTP-level validation test.
+- `available=true` with `not_available=false` is a valid combination under the custom rule because it checks `isset` on the peer value; `false` is treated as unset. Added a positive-path test. The test uses Redis expectations for the cache-write path only: availability-only searches bypass `BookCacheServices::get` and then cache database results.
+- The test mocks were checked against the controller and cache service source and corrected accordingly. These tests have not been executed; runtime behavior is unverified.
