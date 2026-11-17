@@ -296,3 +296,14 @@ This inventory is route-level only. Phase 1 must verify it against the actual im
 - Fresh source inventory: 74 authored test methods across nine independent API test files (Infrastructure 3, Authentication 15, Librarian Books 12, Librarian Members 9, Librarian Categories 5, Librarian Penalties 3, Member Books 2, Member Borrows 15, Member Penalties 10). This count is based on freshly fetched GitHub source, not PHPUnit discovery.
 - No test execution, CI work, or production-code modification was performed.
 - Next: inspect whether remaining penalty request validation and librarian payment cases are already adequately covered; then continue to the next endpoint gaps. Do not assume any test passes until executed.
+
+
+### Phase 6 advancement (2026-11-18) — exact penalty filters
+
+- Re-read AGENTS.md, the current endpoint-testing plan, endpoint contract matrix, and tests/Support/README.md from main before implementation.
+- Re-inspected PenaltySearchRequest, PenaltyServices::SEARCH_REQUEST_ATTRIBUTES, MemberController::search_penalty, the existing penalty feature tests, and TestDataFactory.
+- Added four tests to tests/Feature/Api/Member/Penalties/PenaltySearchTest.php: exact amount filter, borrowed_id filter, exact calculated_at filter, and rejection of zero for borrowed_id/amount/amount_lower_than/amount_greater_than.
+- These cases cover every declared PenaltySearchRequest search criterion except member_id as a caller-controlled filter (intentionally overwritten by authenticated identity) and the date/amount ranges already covered in preceding updates. Existing member-scope isolation remains covered.
+- Updated .agent/endpoint-contract-matrix.md immediately after the test commit.
+- No production code changed. No tests were executed. CI remains out of scope.
+- Next: inspect the Librarian pay_penalty endpoint for missing boundary cases (especially missing ID validation, non-positive ID, and successful payment state) and then continue reviewing remaining API endpoint gaps.
