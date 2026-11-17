@@ -17,7 +17,7 @@ class BookManagementTest extends ApiTestCase
         $category = TestDataFactory::category();
 
         $this->authenticateAsLibrarian($librarian)
-            ->postJson('/v1/librarian/add_book', [
+            ->postJson('/api/v1/librarian/add_book', [
                 'title' => 'Distributed Systems',
                 'author' => 'Andrew Tanenbaum',
                 'isbn' => '9780306406157',
@@ -42,7 +42,7 @@ class BookManagementTest extends ApiTestCase
     public function test_add_book_rejects_missing_category_and_invalid_isbn(): void
     {
         $this->authenticateAsLibrarian(TestDataFactory::librarian())
-            ->postJson('/v1/librarian/add_book', [
+            ->postJson('/api/v1/librarian/add_book', [
                 'title' => 'Invalid Book',
                 'author' => 'Test Author',
                 'isbn' => 'not-an-isbn',
@@ -63,7 +63,7 @@ class BookManagementTest extends ApiTestCase
         $book = TestDataFactory::book($category, ['isbn' => '9780306406157']);
 
         $this->authenticateAsLibrarian($librarian)
-            ->putJson('/v1/librarian/update_book', [
+            ->putJson('/api/v1/librarian/update_book', [
                 'target_isbn' => $book->isbn,
                 'title' => 'Updated Systems Book',
                 'location' => 'Shelf B2',
@@ -84,7 +84,7 @@ class BookManagementTest extends ApiTestCase
         $book = TestDataFactory::book(null, ['isbn' => '9780306406157']);
 
         $this->authenticateAsLibrarian($librarian)
-            ->putJson('/v1/librarian/update_book', [
+            ->putJson('/api/v1/librarian/update_book', [
                 'target_isbn' => $book->isbn,
                 'isbn' => '9780306406195',
             ])->assertOk()
@@ -102,7 +102,7 @@ class BookManagementTest extends ApiTestCase
         $book = TestDataFactory::book(null, ['isbn' => '9780306406157']);
 
         $this->authenticateAsLibrarian($librarian)
-            ->deleteJson('/v1/librarian/delete_book', ['isbn' => $book->isbn])
+            ->deleteJson('/api/v1/librarian/delete_book', ['isbn' => $book->isbn])
             ->assertOk()
             ->assertJsonPath('message', 'book deleted');
 
@@ -138,7 +138,7 @@ class BookManagementTest extends ApiTestCase
             ->andReturn(1);
 
         $this->authenticateAsLibrarian($librarian)
-            ->postJson('/v1/librarian/search_book', ['isbn' => $book->isbn])
+            ->postJson('/api/v1/librarian/search_book', ['isbn' => $book->isbn])
             ->assertOk()
             ->assertJsonPath('books.0.isbn', $book->isbn);
     }
@@ -149,7 +149,7 @@ class BookManagementTest extends ApiTestCase
         $category = TestDataFactory::category();
 
         $this->authenticateAsLibrarian($librarian)
-            ->postJson('/v1/librarian/add_book', [
+            ->postJson('/api/v1/librarian/add_book', [
                 'title' => 'Duplicate ISBN',
                 'author' => 'Test Author',
                 'isbn' => '9780306406157',
@@ -194,7 +194,7 @@ class BookManagementTest extends ApiTestCase
             ]);
 
         $this->authenticateAsLibrarian($librarian)
-            ->postJson('/v1/librarian/search_book', ['title' => 'Distributed Systems'])
+            ->postJson('/api/v1/librarian/search_book', ['title' => 'Distributed Systems'])
             ->assertOk()
             ->assertJsonPath('books.0.title', 'Distributed Systems')
             ->assertJsonPath('books.0.isbn', '9780306406157');
@@ -205,7 +205,7 @@ class BookManagementTest extends ApiTestCase
     public function test_book_search_rejects_a_request_without_any_search_criteria(): void
     {
         $this->authenticateAsLibrarian(TestDataFactory::librarian())
-            ->postJson('/v1/librarian/search_book', [])
+            ->postJson('/api/v1/librarian/search_book', [])
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['_check']);
     }
@@ -213,7 +213,7 @@ class BookManagementTest extends ApiTestCase
     public function test_book_search_rejects_non_positive_limit_and_unknown_category(): void
     {
         $this->authenticateAsLibrarian(TestDataFactory::librarian())
-            ->postJson('/v1/librarian/search_book', [
+            ->postJson('/api/v1/librarian/search_book', [
                 'title' => 'Systems',
                 'limit' => 0,
                 'category_id' => 99999,
@@ -248,7 +248,7 @@ class BookManagementTest extends ApiTestCase
             ->andReturn(1);
 
         $this->authenticateAsLibrarian($librarian)
-            ->postJson('/v1/librarian/search_book', [
+            ->postJson('/api/v1/librarian/search_book', [
                 'available' => true,
                 'not_available' => false,
             ])->assertOk()
@@ -258,7 +258,7 @@ class BookManagementTest extends ApiTestCase
     public function test_book_search_rejects_mutually_exclusive_availability_filters(): void
     {
         $this->authenticateAsLibrarian(TestDataFactory::librarian())
-            ->postJson('/v1/librarian/search_book', [
+            ->postJson('/api/v1/librarian/search_book', [
                 'available' => true,
                 'not_available' => true,
             ])->assertUnprocessable()
