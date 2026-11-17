@@ -140,4 +140,41 @@ class BookManagementTest extends ApiTestCase
             ->assertJsonValidationErrors(['isbn']);
     }
 
+    public function test_librarian_book_search_returns_a_title_cache_hit_without_querying_the_database(): void
+    {
+        $librarian = TestDataFactory::librarian();
+
+        Redis::shouldReceive('scan')
+            ->once()
+            ->with('0', 'MATCH', '*Distributed Systems*', 'COUNT', 5)
+            ->andReturn(['0', ['book-9780306406157-Distributed Systems']]);
+        Redis::shouldReceive('exists')
+            ->once()
+            ->with('book-9780306406157-Distributed Systems')
+            ->andReturn(1);
+        Redis::shouldReceive('hGetAll')
+            ->once()
+            ->with('book-9780306406157-Distributed Systems')
+            ->andReturn([
+                'id' => '1',
+                'category_id' => '1',
+                'title' => 'Distributed Systems',
+                'author' => 'Andrew Tanenbaum',
+                'isbn' => '9780306406157',
+                'published' => '2024-01-15',
+                'publisher' => 'Test Press',
+                'total_copies' => '4',
+                'available_copies' => '4',
+                'description' => 'A detailed book about distributed systems.',
+                'location' => 'Shelf A1',
+                'deleted_at' => '',
+            ]);
+
+        $this->authenticateAsLibrarian($librarian)
+            ->postJson('/v1/librarian/search_book', ['title' => 'Distributed Systems'])
+            ->assertOk()
+            ->assertJsonPath('books.0.title', 'Distributed Systems')
+            ->assertJsonPath('books.0.isbn', '9780306406157');
+    }
+
 }
