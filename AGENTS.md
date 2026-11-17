@@ -11,3 +11,10 @@
 
 ## Handoff rule
 At the beginning of each task, read the plan and its latest progress table. At the end, leave the plan updated with completed work, current status, blockers, and the exact next step.
+
+## API test infrastructure conventions
+- New API Feature tests must extend `Tests\\Support\\Api\\ApiTestCase`, not the user's existing test case directly.
+- Use `Tests\\Support\\Factories\\TestDataFactory` for explicit, related domain records; override unique values when creating multiple records of the same type in one test.
+- Use `Tests\\Support\\Helpers\\AuthenticatesApiUsers` for member/librarian Sanctum Bearer tokens.
+- API test base case replaces the Redis facade root with a strict Mockery mock. Configure explicit `Redis::shouldReceive(...)` expectations for Redis-backed paths; never allow tests to reach a real Redis server.
+- The Phase 2 infrastructure is not complete until the new infrastructure smoke tests have actually run successfully. Record the exact command and observed result in the progress document.
