@@ -163,4 +163,19 @@ class BorrowManagementTest extends ApiTestCase
             ->assertForbidden()
             ->assertJsonPath('message', 'you have unpaid penalties, first paid your penalties');
     }
+    public function test_member_cannot_borrow_the_same_book_twice_on_the_same_day(): void
+    {
+        $member = TestDataFactory::member();
+        $book = TestDataFactory::book();
+        TestDataFactory::borrow($member, $book, [
+            'borrowed_at' => now()->toDateString(),
+        ]);
+
+        $this->authenticateAsMember($member)
+            ->postJson('/v1/member/add_borrow', ['book_id' => $book->id])
+            ->assertUnprocessable();
+
+        $this->assertDatabaseCount('borrows', 1);
+    }
+
 }
