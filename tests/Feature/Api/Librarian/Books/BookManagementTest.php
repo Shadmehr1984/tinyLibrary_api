@@ -112,6 +112,10 @@ class BookManagementTest extends ApiTestCase
             ->andReturn(1);
         Redis::shouldReceive('expire')
             ->once()
+            ->withArgs(function (string $key, int $seconds) use ($book): bool {
+                return str_starts_with($key, 'book-' . $book->isbn . '-')
+                    && $seconds === 180;
+            })
             ->andReturn(1);
 
         $this->authenticateAsLibrarian($librarian)
