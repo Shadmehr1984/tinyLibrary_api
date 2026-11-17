@@ -119,4 +119,25 @@ class BookManagementTest extends ApiTestCase
             ->assertOk()
             ->assertJsonPath('books.0.isbn', $book->isbn);
     }
+    public function test_add_book_rejects_an_isbn_already_in_use(): void
+    {
+        $librarian = TestDataFactory::librarian();
+        TestDataFactory::book(null, ['isbn' => '9780306406157']);
+        $category = TestDataFactory::category();
+
+        $this->authenticateAsLibrarian($librarian)
+            ->postJson('/v1/librarian/add_book', [
+                'title' => 'Duplicate ISBN',
+                'author' => 'Test Author',
+                'isbn' => '9780306406157',
+                'published' => '2024-01-15',
+                'publisher' => 'Test Press',
+                'category_id' => $category->id,
+                'total_copies' => 1,
+                'description' => 'A sufficiently long description.',
+                'location' => 'Shelf A1',
+            ])->assertUnprocessable()
+            ->assertJsonValidationErrors(['isbn']);
+    }
+
 }
