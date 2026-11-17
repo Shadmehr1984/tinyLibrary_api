@@ -337,3 +337,14 @@ Laravel automatically mounts the routes declared in `routes/api.php` under `/api
 - Corrected every HTTP endpoint URL in the eight independent API Feature test files to include Laravel's `/api` prefix. The correction changed 87 request URL literals across authentication, librarian, and member endpoint tests.
 - Added an explicit `/api` prefix rule to `AGENTS.md`, this plan, and `tests/Support/README.md` so future agents do not repeat the mistake.
 - Production routes and application code were not changed. Tests have not been run as part of this correction; the user reported that prior test runs failed because of the missing prefix, but no new execution result is claimed.
+
+### 2026-11-18 — search request validation correction
+
+- User approved correcting the empty-search validation behavior across the search Form Requests and clarified that `limit` is optional and must not count as a search criterion.
+- Removed the unconditional `prepareForValidation()` method that merged the `_check` sentinel from all six requests: BookSearchRequest, BorrowSearchRequest, CategorySearchRequest, LibrarianSearchRequest, MemberSearchRequest, and PenaltySearchRequest.
+- Completed the `required_without_all` criteria lists to include the omitted supported filters: book `available`/`not_available`, borrow `due_date_after` and the complete penalty amount comparison list, and member `penalty_balance_lower_than`/`penalty_balance_greater_than`. Corrected the missing comma in the borrow criteria list.
+- Confirmed `limit` remains excluded from all criteria lists. A request containing only `limit` must fail the minimum-one-search-criterion validation.
+- Added limit-only regression tests for book, category, and member search. Added empty-payload and limit-only regression tests for member borrow and penalty search. Existing empty-payload tests cover book, category, and member search.
+- All test URLs use the effective `/api/v1/...` prefix.
+- No test suite was executed in this environment. Tests are authored only; runtime result remains unverified.
+- Next step: inspect the final diffs/source-level method counts, then continue remaining endpoint regression work. Do not mark the tests as passing without execution evidence.
