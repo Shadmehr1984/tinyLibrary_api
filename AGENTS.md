@@ -13,6 +13,7 @@
 At the beginning of each task, read the plan and its latest progress table. At the end, leave the plan updated with completed work, current status, blockers, and the exact next step.
 
 ## API test infrastructure conventions
+- All HTTP-level Feature tests must call the effective Laravel API URL with the `/api` prefix (for example, `/api/v1/member/login` and `/api/v1/librarian/search_book`). The paths declared inside `routes/api.php` omit this framework-added prefix; never copy those route declarations directly into HTTP test URLs.
 - New API Feature tests must extend `Tests\\Support\\Api\\ApiTestCase`, not the user's existing test case directly.
 - Use `Tests\\Support\\Factories\\TestDataFactory` for explicit, related domain records; override unique values when creating multiple records of the same type in one test.
 - Use `Tests\\Support\\Helpers\\AuthenticatesApiUsers` for member/librarian Sanctum Bearer tokens.
