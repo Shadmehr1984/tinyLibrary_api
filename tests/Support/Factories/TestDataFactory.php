@@ -14,7 +14,7 @@ final class TestDataFactory
     public static function category(array $attributes = []): Category
     {
         return Category::factory()->create(array_merge([
-            'name' => 'API Test Category',
+            'name' => 'API Test Category '.(Category::query()->count() + 1),
             'description' => 'Category created for API feature tests.',
         ], $attributes));
     }
