@@ -33,10 +33,4 @@ class LibrarianSearchRequest extends FormRequest
             '_check' => ['required_without_all:name,email,phone,address']
         ];
     }
-
-    public function prepareForValidation(){
-        $this->merge([
-            '_check' => 'dummy'
-        ]);
-    }
 }
