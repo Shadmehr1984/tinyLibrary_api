@@ -185,4 +185,20 @@ class MemberManagementTest extends ApiTestCase
             ->assertJsonValidationErrors(['_check']);
     }
 
+
+    public function test_add_member_rejects_an_email_already_in_use(): void
+    {
+        TestDataFactory::member(['email' => 'duplicate-member@example.test']);
+
+        $this->authenticateAsLibrarian(TestDataFactory::librarian())
+            ->postJson('/api/v1/librarian/add_member', [
+                'name' => 'Duplicate Member',
+                'email' => 'duplicate-member@example.test',
+                'password' => 'member-password',
+                'phone' => '+10000000003',
+                'address' => 'Duplicate Member Address',
+            ])->assertUnprocessable()
+            ->assertJsonValidationErrors(['email']);
+    }
+
 }
