@@ -22,7 +22,7 @@ class BorrowIsforMemberRule implements ValidationRule
     {
         $borrow = DB::table('borrows')->select('id')->where('id', '=', $value)->where('member_id', '=', $this->member_id)->get();
         if (empty($borrow->id)){
-            $fail('invalid borrow');
+            $fail('borrow not exists');
         }
     }
 }
