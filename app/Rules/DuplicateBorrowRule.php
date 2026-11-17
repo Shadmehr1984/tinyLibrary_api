@@ -23,9 +23,13 @@ class DuplicateBorrowRule implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $borrow = DB::table('borrows')->select()->where('member_id', '=', $this->member_id)->where('book_id', '=', $this->book_id)->where('borrowed_at', '=', Date::now())->get();
-        
-        if (sizeof($borrow) != 0){
+        $duplicateExists = DB::table('borrows')
+            ->where('member_id', '=', $this->member_id)
+            ->where('book_id', '=', $this->book_id)
+            ->where('borrowed_at', '=', Date::now())
+            ->exists();
+
+        if ($duplicateExists) {
             $fail("duplicate borrow");
         }
     }
