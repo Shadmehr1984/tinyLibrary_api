@@ -287,3 +287,12 @@ This inventory is route-level only. Phase 1 must verify it against the actual im
 - Freshly fetched all nine independent API Feature test files from main and counted 70 authored public function test_... methods: Infrastructure 3, Authentication 15, Librarian Books 12, Librarian Members 9, Librarian Categories 5, Librarian Penalties 3, Member Books 2, Member Borrows 15, Member Penalties 6.
 - This is a source-level count only. No PHPUnit discovery or test execution was performed. CI remains out of scope per the user's instruction. No production code was modified.
 - Exact next step: continue source review of remaining uncovered PenaltySearchRequest date-range filters (calculated_before_at, calculated_after_at, paid_before_at, paid_after_at) and any remaining librarian penalty payment validation boundaries. Do not infer or change production behavior without explicit approval.
+
+
+### Phase 6 follow-up (2026-11-18) — penalty date-range filters
+
+- Added four more API Feature tests in tests/Feature/Api/Member/Penalties/PenaltySearchTest.php for calculated_before_at, calculated_after_at, paid_before_at, and paid_after_at. Each test checks strict date-boundary behavior; paid-date tests also ensure null paid_at rows are not returned.
+- Updated the endpoint contract matrix immediately after implementation.
+- Fresh source inventory: 74 authored test methods across nine independent API test files (Infrastructure 3, Authentication 15, Librarian Books 12, Librarian Members 9, Librarian Categories 5, Librarian Penalties 3, Member Books 2, Member Borrows 15, Member Penalties 10). This count is based on freshly fetched GitHub source, not PHPUnit discovery.
+- No test execution, CI work, or production-code modification was performed.
+- Next: inspect whether remaining penalty request validation and librarian payment cases are already adequately covered; then continue to the next endpoint gaps. Do not assume any test passes until executed.
