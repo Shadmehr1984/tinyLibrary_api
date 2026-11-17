@@ -24,7 +24,7 @@ class PenaltySearchTest extends ApiTestCase
         $otherPenalty = TestDataFactory::penalty($otherMember, $otherBorrow);
 
         $this->authenticateAsMember($member)
-            ->postJson('/v1/member/search_penalty', ['member_id' => $otherMember->id])
+            ->postJson('/api/v1/member/search_penalty', ['member_id' => $otherMember->id])
             ->assertOk()
             ->assertJsonFragment(['id' => $ownPenalty->id])
             ->assertJsonMissing(['id' => $otherPenalty->id]);
@@ -35,7 +35,7 @@ class PenaltySearchTest extends ApiTestCase
         $member = TestDataFactory::member(['active' => false]);
 
         $this->authenticateAsMember($member)
-            ->postJson('/v1/member/search_penalty', ['amount' => 1000])
+            ->postJson('/api/v1/member/search_penalty', ['amount' => 1000])
             ->assertForbidden();
     }
 
@@ -51,7 +51,7 @@ class PenaltySearchTest extends ApiTestCase
         $above = TestDataFactory::penalty($member, $aboveBorrow, ['amount' => 1500]);
 
         $this->authenticateAsMember($member)
-            ->postJson('/v1/member/search_penalty', ['amount_lower_than' => 1000])
+            ->postJson('/api/v1/member/search_penalty', ['amount_lower_than' => 1000])
             ->assertOk()
             ->assertJsonFragment(['id' => $below->id])
             ->assertJsonMissing(['id' => $boundary->id])
@@ -70,7 +70,7 @@ class PenaltySearchTest extends ApiTestCase
         $above = TestDataFactory::penalty($member, $aboveBorrow, ['amount' => 1500]);
 
         $this->authenticateAsMember($member)
-            ->postJson('/v1/member/search_penalty', ['amount_greater_than' => 1000])
+            ->postJson('/api/v1/member/search_penalty', ['amount_greater_than' => 1000])
             ->assertOk()
             ->assertJsonFragment(['id' => $above->id])
             ->assertJsonMissing(['id' => $boundary->id])
@@ -89,7 +89,7 @@ class PenaltySearchTest extends ApiTestCase
         $unpaid = TestDataFactory::penalty($member, $unpaidBorrow);
 
         $this->authenticateAsMember($member)
-            ->postJson('/v1/member/search_penalty', ['paid_at' => '2025-01-20'])
+            ->postJson('/api/v1/member/search_penalty', ['paid_at' => '2025-01-20'])
             ->assertOk()
             ->assertJsonFragment(['id' => $paid->id])
             ->assertJsonMissing(['id' => $otherPaid->id])
@@ -101,7 +101,7 @@ class PenaltySearchTest extends ApiTestCase
         $member = TestDataFactory::member();
 
         $this->authenticateAsMember($member)
-            ->postJson('/v1/member/search_penalty', [
+            ->postJson('/api/v1/member/search_penalty', [
                 'amount' => 1000,
                 'limit' => 0,
             ])
@@ -122,7 +122,7 @@ class PenaltySearchTest extends ApiTestCase
         $later = TestDataFactory::penalty($member, $laterBorrow, ['calculated_at' => '2025-01-21']);
 
         $this->authenticateAsMember($member)
-            ->postJson('/v1/member/search_penalty', ['calculated_before_at' => '2025-01-20'])
+            ->postJson('/api/v1/member/search_penalty', ['calculated_before_at' => '2025-01-20'])
             ->assertOk()
             ->assertJsonFragment(['id' => $earlier->id])
             ->assertJsonMissing(['id' => $boundary->id])
@@ -141,7 +141,7 @@ class PenaltySearchTest extends ApiTestCase
         $later = TestDataFactory::penalty($member, $laterBorrow, ['calculated_at' => '2025-01-21']);
 
         $this->authenticateAsMember($member)
-            ->postJson('/v1/member/search_penalty', ['calculated_after_at' => '2025-01-20'])
+            ->postJson('/api/v1/member/search_penalty', ['calculated_after_at' => '2025-01-20'])
             ->assertOk()
             ->assertJsonFragment(['id' => $later->id])
             ->assertJsonMissing(['id' => $boundary->id])
@@ -162,7 +162,7 @@ class PenaltySearchTest extends ApiTestCase
         $unpaid = TestDataFactory::penalty($member, $unpaidBorrow);
 
         $this->authenticateAsMember($member)
-            ->postJson('/v1/member/search_penalty', ['paid_before_at' => '2025-01-20'])
+            ->postJson('/api/v1/member/search_penalty', ['paid_before_at' => '2025-01-20'])
             ->assertOk()
             ->assertJsonFragment(['id' => $earlier->id])
             ->assertJsonMissing(['id' => $boundary->id])
@@ -184,7 +184,7 @@ class PenaltySearchTest extends ApiTestCase
         $unpaid = TestDataFactory::penalty($member, $unpaidBorrow);
 
         $this->authenticateAsMember($member)
-            ->postJson('/v1/member/search_penalty', ['paid_after_at' => '2025-01-20'])
+            ->postJson('/api/v1/member/search_penalty', ['paid_after_at' => '2025-01-20'])
             ->assertOk()
             ->assertJsonFragment(['id' => $later->id])
             ->assertJsonMissing(['id' => $boundary->id])
@@ -205,7 +205,7 @@ class PenaltySearchTest extends ApiTestCase
         $higher = TestDataFactory::penalty($member, $higherBorrow, ['amount' => 1500]);
 
         $this->authenticateAsMember($member)
-            ->postJson('/v1/member/search_penalty', ['amount' => 1000])
+            ->postJson('/api/v1/member/search_penalty', ['amount' => 1000])
             ->assertOk()
             ->assertJsonFragment(['id' => $matching->id])
             ->assertJsonMissing(['id' => $lower->id])
@@ -222,7 +222,7 @@ class PenaltySearchTest extends ApiTestCase
         $other = TestDataFactory::penalty($member, $otherBorrow);
 
         $this->authenticateAsMember($member)
-            ->postJson('/v1/member/search_penalty', ['borrowed_id' => $matchingBorrow->id])
+            ->postJson('/api/v1/member/search_penalty', ['borrowed_id' => $matchingBorrow->id])
             ->assertOk()
             ->assertJsonFragment(['id' => $matching->id])
             ->assertJsonMissing(['id' => $other->id]);
@@ -238,7 +238,7 @@ class PenaltySearchTest extends ApiTestCase
         $other = TestDataFactory::penalty($member, $otherBorrow, ['calculated_at' => '2025-01-21']);
 
         $this->authenticateAsMember($member)
-            ->postJson('/v1/member/search_penalty', ['calculated_at' => '2025-01-20'])
+            ->postJson('/api/v1/member/search_penalty', ['calculated_at' => '2025-01-20'])
             ->assertOk()
             ->assertJsonFragment(['id' => $matching->id])
             ->assertJsonMissing(['id' => $other->id]);
@@ -249,7 +249,7 @@ class PenaltySearchTest extends ApiTestCase
         $member = TestDataFactory::member();
 
         $this->authenticateAsMember($member)
-            ->postJson('/v1/member/search_penalty', [
+            ->postJson('/api/v1/member/search_penalty', [
                 'borrowed_id' => 0,
                 'amount' => 0,
                 'amount_lower_than' => 0,
