@@ -140,6 +140,39 @@ class BorrowManagementTest extends ApiTestCase
             ->assertJsonValidationErrors(['status']);
     }
 
+    public function test_member_borrow_search_can_filter_by_due_date_after(): void
+    {
+        $member = TestDataFactory::member();
+        $earlierBook = TestDataFactory::book(null, ['isbn' => '9780306406157']);
+        $laterBook = TestDataFactory::book(null, ['isbn' => '9780306406164']);
+
+        $earlierBorrow = TestDataFactory::borrow($member, $earlierBook, [
+            'due_date' => '2025-01-15',
+        ]);
+        $laterBorrow = TestDataFactory::borrow($member, $laterBook, [
+            'due_date' => '2025-01-20',
+        ]);
+
+        $this->authenticateAsMember($member)
+            ->postJson('/v1/member/search_borrow', ['due_date_after' => '2025-01-15'])
+            ->assertOk()
+            ->assertJsonFragment(['id' => $laterBorrow->id])
+            ->assertJsonMissing(['id' => $earlierBorrow->id]);
+    }
+
+    public function test_member_borrow_search_rejects_a_zero_limit(): void
+    {
+        $member = TestDataFactory::member();
+
+        $this->authenticateAsMember($member)
+            ->postJson('/v1/member/search_borrow', [
+                'status' => 'borrowed',
+                'limit' => 0,
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['limit']);
+    }
+
     public function test_member_can_return_their_own_active_borrow_and_inventory_is_restored(): void
     {
         $member = TestDataFactory::member();
