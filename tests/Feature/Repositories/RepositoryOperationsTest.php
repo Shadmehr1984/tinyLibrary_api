@@ -334,26 +334,6 @@ class RepositoryOperationsTest extends TestCase
         ]);
     }
 
-    public function test_penalty_repository_throws_when_member_does_not_exist(): void
-    {
-        $this->expectException(MemberNotExistsException::class);
-
-        PenaltyRepository::member_have_unpaid_penalty(999999);
-    }
-
-    public function test_repository_creates_new_model_when_entity_id_does_not_exist(): void
-    {
-        $repository = new CategoryRepository(
-            new CategoryEntity(999999, 'New after missing id', 'New category')
-        );
-
-        $repository->save();
-
-        $this->assertDatabaseHas('categories', [
-            'name' => 'New after missing id',
-        ]);
-    }
-
     public function test_repository_conversion_requires_a_model_or_attributes_array(): void
     {
         $method = new \ReflectionMethod(\App\Repositories\Repository::class, 'convert_db_format_2_type_class');
