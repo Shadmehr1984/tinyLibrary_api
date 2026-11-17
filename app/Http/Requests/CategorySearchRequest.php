@@ -30,10 +30,4 @@ class CategorySearchRequest extends FormRequest
             '_check' => ['required_without_all:name,description']
         ];
     }
-
-    public function prepareForValidation(){
-        $this->merge([
-            '_check' => 'dummy'
-        ]);
-    }
 }
