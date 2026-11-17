@@ -103,6 +103,43 @@ class BorrowManagementTest extends ApiTestCase
             ->assertJsonMissing(['id' => $otherBorrow->id]);
     }
 
+    public function test_member_borrow_search_can_filter_by_status_without_exposing_other_members(): void
+    {
+        $member = TestDataFactory::member();
+        $otherMember = TestDataFactory::member(['email' => 'status-filter-other@example.test']);
+
+        $returnedBook = TestDataFactory::book(null, ['isbn' => '9780306406157']);
+        $activeBook = TestDataFactory::book(null, ['isbn' => '9780306406164']);
+        $otherReturnedBook = TestDataFactory::book(null, ['isbn' => '9780306406171']);
+
+        $returnedBorrow = TestDataFactory::borrow($member, $returnedBook, [
+            'status' => 'returned',
+            'returned_at' => '2025-01-10',
+        ]);
+        $activeBorrow = TestDataFactory::borrow($member, $activeBook);
+        $otherReturnedBorrow = TestDataFactory::borrow($otherMember, $otherReturnedBook, [
+            'status' => 'returned',
+            'returned_at' => '2025-01-10',
+        ]);
+
+        $this->authenticateAsMember($member)
+            ->postJson('/v1/member/search_borrow', ['status' => 'returned'])
+            ->assertOk()
+            ->assertJsonFragment(['id' => $returnedBorrow->id])
+            ->assertJsonMissing(['id' => $activeBorrow->id])
+            ->assertJsonMissing(['id' => $otherReturnedBorrow->id]);
+    }
+
+    public function test_member_borrow_search_rejects_an_unsupported_status(): void
+    {
+        $member = TestDataFactory::member();
+
+        $this->authenticateAsMember($member)
+            ->postJson('/v1/member/search_borrow', ['status' => 'pending'])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['status']);
+    }
+
     public function test_member_can_return_their_own_active_borrow_and_inventory_is_restored(): void
     {
         $member = TestDataFactory::member();
