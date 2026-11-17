@@ -161,14 +161,14 @@ This inventory is route-level only. Phase 1 must verify it against the actual im
 ## 7. Progress tracking — update immediately
 
 **Last updated:** 2026-11-17  
-**Overall status:** Agent documentation and endpoint contract matrix committed; Phase 1 source review completed and awaiting user approval; implementation not started.  
-**Current phase:** Phase 1 — API contract analysis (awaiting user review).
+**Overall status:** Phase 1 approved by user; Phase 2 test-infrastructure work in progress.  
+**Current phase:** Phase 2 — Test infrastructure (in progress).
 
 | Phase | Status | Progress / notes |
 |---|---|---|
 | Plan and scope | Complete | User approved the proposed approach. This document records scope, constraints, folder proposal, coverage, and delivery phases. |
-| 1. API contract analysis | Source review complete — awaiting user approval | Added `.agent/endpoint-contract-matrix.md` with all 24 versioned routes, request validation summaries, response/status behavior, auth middleware, persistence notes, cache behavior, test-data constraints, and source-level defect candidates/open questions. No implementation or production-code changes have started. |
-| 2. Test infrastructure | Not started | Blocked on Phase 1 findings and approval. |
+| 1. API contract analysis | Complete — user approved | `.agent/endpoint-contract-matrix.md` documents all 24 versioned routes, request validation summaries, response/status behavior, auth middleware, persistence notes, cache behavior, test-data constraints, and source-level defect candidates/open questions. User approved proceeding to Phase 2. |
+| 2. Test infrastructure | In progress | Phase 1 matrix approved by user. Re-read AGENTS.md, plan, and contract matrix. Infrastructure design is being finalized around an isolated API base case, deterministic test-data builders, Sanctum auth helpers, and Redis facade mocking (no real Redis connection). |
 | 3. Authentication & security | Not started | Blocked on Phase 2. |
 | 4. Librarian API | Not started | Blocked on Phase 2 and security foundations. |
 | 5. Member API | Not started | Blocked on Phase 2 and security foundations. |
