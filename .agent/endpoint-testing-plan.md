@@ -317,3 +317,12 @@ This inventory is route-level only. Phase 1 must verify it against the actual im
 - Updated the endpoint contract matrix immediately after the test change.
 - No production code or API contract was modified. Tests have not been executed; CI remains out of scope.
 - Next: continue the cross-endpoint gap review, starting with category and member search filters and any untested validation boundaries, while keeping the independent test suite isolated.
+
+
+### Phase 6 advancement (2026-11-18) — librarian search and payment edge cases
+
+- Added two librarian payment validation tests: missing id and id=0; existing coverage already includes successful payment, already-paid 409, and a non-existent positive ID.
+- Added one category partial-name search test and one member partial-name search test, each verifying substring match and non-match exclusion.
+- Source review of CategoryServices::search and MemberServices::search found both compute a wildcard-normalized value through fix_str_like_op() but pass the original value to Repository::search. These tests encode the substring behavior implied by the helper and are documented as regression expectations that may expose a source defect. Do not modify production code without approval.
+- Updated the endpoint contract matrix after each meaningful advancement. No production changes and no test execution.
+- Next: review other member/category search filters and then inspect remaining untested endpoint scenarios; keep all claims about execution pending.
