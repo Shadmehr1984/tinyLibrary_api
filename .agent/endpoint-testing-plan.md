@@ -160,7 +160,7 @@ This inventory is route-level only. Phase 1 must verify it against the actual im
 
 ## 7. Progress tracking — update immediately
 
-**Last updated:** 2026-11-17  
+**Last updated:** 2026-11-18  
 **Overall status:** Phase 1 approved; Phases 2–5 implemented to varying coverage levels but unverified; Phase 6 source review and regression coverage in progress.  
 **Current phase:** Phase 6 — Edge cases & regression.
 
@@ -274,3 +274,16 @@ This inventory is route-level only. Phase 1 must verify it against the actual im
 - The tests are authored but unexecuted. No production code or API contract was changed.
 - Latest expected source inventory after this addition: 66 test methods across nine files (Infrastructure 3, Authentication 15, Librarian Books 12, Librarian Members 9, Librarian Categories 5, Librarian Penalties 3, Member Books 2, Member Borrows 15, Member Penalties 2). Recount from freshly fetched source before reporting. This is not PHPUnit discovery or execution.
 - Exact next step: continue the source-based coverage review of member penalty filters and librarian penalty payment boundaries; keep CI and test execution out of scope per the user's current priority.
+
+
+### Latest Phase 6 advancement (2026-11-18) — member penalty search
+
+- Re-read AGENTS.md, this plan, .agent/endpoint-contract-matrix.md, and tests/Support/README.md from main before continuing.
+- Inspected the member penalty search test, PenaltySearchRequest, PenaltyServices, MemberController, LibrarianController, PenaltyRepository, the date value object/rule, and the existing librarian penalty-payment tests.
+- Added four tests to tests/Feature/Api/Member/Penalties/PenaltySearchTest.php: strict amount_lower_than boundary, strict amount_greater_than boundary, exact paid_at date filtering, and rejection of limit=0 with a valid criterion.
+- Confirmed member penalty search scopes results by replacing request member_id with the authenticated member ID. Existing cross-member isolation coverage remains.
+- Confirmed the librarian's already-paid penalty path is explicitly translated to HTTP 409 in the controller and already has a test; no duplicate payment test was needed.
+- Updated .agent/endpoint-contract-matrix.md immediately with the new coverage and source basis.
+- Freshly fetched all nine independent API Feature test files from main and counted 70 authored public function test_... methods: Infrastructure 3, Authentication 15, Librarian Books 12, Librarian Members 9, Librarian Categories 5, Librarian Penalties 3, Member Books 2, Member Borrows 15, Member Penalties 6.
+- This is a source-level count only. No PHPUnit discovery or test execution was performed. CI remains out of scope per the user's instruction. No production code was modified.
+- Exact next step: continue source review of remaining uncovered PenaltySearchRequest date-range filters (calculated_before_at, calculated_after_at, paid_before_at, paid_after_at) and any remaining librarian penalty payment validation boundaries. Do not infer or change production behavior without explicit approval.
