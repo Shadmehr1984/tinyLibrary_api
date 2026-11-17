@@ -187,3 +187,6 @@ No production code or API contract was changed. No tests were run during this so
 
 
 - Follow-up date-range coverage (2026-11-18): added four member penalty API tests for calculated_before_at, calculated_after_at, paid_before_at, and paid_after_at. Each test seeds records before, on, and after the date boundary and asserts strict less-than/greater-than behavior; paid-date tests also assert that unpaid penalties are excluded. The source mapping is explicit in PenaltyServices::SEARCH_REQUEST_ATTRIBUTES. Authored only; not executed.
+
+
+- Member penalty exact-filter coverage (2026-11-18): added API tests for exact amount, borrowed_id, and calculated_at filters. Each seeds matching and non-matching penalties and asserts only the expected record is returned. Added one validation test confirming borrowed_id, amount, amount_lower_than, and amount_greater_than reject zero via their declared integer/gt:0 rules. These tests are authored, not executed; member scoping continues to be enforced by the controller's authenticated-user override.
