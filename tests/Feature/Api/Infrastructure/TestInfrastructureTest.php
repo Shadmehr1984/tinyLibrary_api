@@ -34,7 +34,7 @@ class TestInfrastructureTest extends ApiTestCase
         ]);
     }
 
-    public function test_redis_facade_is_mocked_in_api_test_base_case(): void
+    public function test_authentication_helpers_issue_member_and_librarian_tokens(): void\n    {\n        $member = TestDataFactory::member();\n        $librarian = TestDataFactory::librarian();\n\n        $this->assertNotEmpty($this->memberToken($member));\n        $this->assertNotEmpty($this->librarianToken($librarian));\n    }\n\n    public function test_redis_facade_is_mocked_in_api_test_base_case(): void
     {
         Redis::shouldReceive('exists')
             ->once()
