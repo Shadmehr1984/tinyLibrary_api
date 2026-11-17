@@ -156,4 +156,30 @@ class AuthenticationTest extends ApiTestCase
             ->assertForbidden()
             ->assertJsonPath('message', 'member is de active');
     }
+
+    public function test_librarian_logout_revokes_the_current_token(): void
+    {
+        $librarian = TestDataFactory::librarian();
+        $token = $this->librarianToken($librarian);
+
+        $this->withToken($token)
+            ->postJson('/v1/librarian/logout')
+            ->assertOk()
+            ->assertJsonPath('message', 'successful logout');
+
+        $this->withToken($token)
+            ->postJson('/v1/librarian/logout')
+            ->assertUnauthorized();
+    }
+
+    public function test_protected_routes_reject_a_malformed_bearer_token(): void
+    {
+        $this->withToken('not-a-valid-token')
+            ->postJson('/v1/member/search_borrow')
+            ->assertUnauthorized();
+
+        $this->withToken('not-a-valid-token')
+            ->postJson('/v1/librarian/logout')
+            ->assertUnauthorized();
+    }
 }
