@@ -20,7 +20,7 @@ class AuthenticationTest extends ApiTestCase
             'password' => Hash::make('password-123'),
         ]);
 
-        $response = $this->postJson('/v1/member/login', [
+        $response = $this->postJson('/api/v1/member/login', [
             'email' => $member->email,
             'password' => 'password-123',
         ]);
@@ -42,7 +42,7 @@ class AuthenticationTest extends ApiTestCase
             'password' => Hash::make('password-123'),
         ]);
 
-        $response = $this->postJson('/v1/librarian/login', [
+        $response = $this->postJson('/api/v1/librarian/login', [
             'email' => $librarian->email,
             'password' => 'password-123',
         ]);
@@ -64,7 +64,7 @@ class AuthenticationTest extends ApiTestCase
             'password' => Hash::make('password-123'),
         ]);
 
-        $this->postJson('/v1/member/login', [
+        $this->postJson('/api/v1/member/login', [
             'email' => $member->email,
             'password' => 'incorrect-123',
         ])->assertUnauthorized()
@@ -75,7 +75,7 @@ class AuthenticationTest extends ApiTestCase
 
     public function test_librarian_login_rejects_unknown_identity(): void
     {
-        $this->postJson('/v1/librarian/login', [
+        $this->postJson('/api/v1/librarian/login', [
             'email' => 'missing@example.test',
             'password' => 'password-123',
         ])->assertUnauthorized()
@@ -86,11 +86,11 @@ class AuthenticationTest extends ApiTestCase
 
     public function test_login_endpoints_validate_required_credentials(): void
     {
-        $this->postJson('/v1/member/login', [])
+        $this->postJson('/api/v1/member/login', [])
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['email', 'password']);
 
-        $this->postJson('/v1/librarian/login', [
+        $this->postJson('/api/v1/librarian/login', [
             'email' => 'not-an-email',
             'password' => 'short',
         ])->assertUnprocessable()
@@ -105,7 +105,7 @@ class AuthenticationTest extends ApiTestCase
             'active' => false,
         ]);
 
-        $this->postJson('/v1/member/login', [
+        $this->postJson('/api/v1/member/login', [
             'email' => 'inactive-login@example.test',
             'password' => 'password-123',
         ])->assertUnauthorized()
@@ -119,7 +119,7 @@ class AuthenticationTest extends ApiTestCase
         $member = TestDataFactory::member();
 
         $this->authenticateAsMember($member)
-            ->postJson('/v1/librarian/logout')
+            ->postJson('/api/v1/librarian/logout')
             ->assertUnauthorized();
     }
 
@@ -128,7 +128,7 @@ class AuthenticationTest extends ApiTestCase
         $librarian = TestDataFactory::librarian();
 
         $this->authenticateAsLibrarian($librarian)
-            ->postJson('/v1/member/search_borrow')
+            ->postJson('/api/v1/member/search_borrow')
             ->assertUnauthorized();
     }
 
@@ -138,12 +138,12 @@ class AuthenticationTest extends ApiTestCase
         $token = $this->memberToken($member);
 
         $this->withToken($token)
-            ->postJson('/v1/member/logout')
+            ->postJson('/api/v1/member/logout')
             ->assertOk()
             ->assertJsonPath('message', 'successful logout');
 
         $this->withToken($token)
-            ->postJson('/v1/member/search_borrow')
+            ->postJson('/api/v1/member/search_borrow')
             ->assertUnauthorized();
     }
 
@@ -152,7 +152,7 @@ class AuthenticationTest extends ApiTestCase
         $member = TestDataFactory::member(['active' => false]);
 
         $this->authenticateAsMember($member)
-            ->postJson('/v1/member/search_borrow')
+            ->postJson('/api/v1/member/search_borrow')
             ->assertForbidden()
             ->assertJsonPath('message', 'member is de active');
     }
@@ -163,37 +163,37 @@ class AuthenticationTest extends ApiTestCase
         $token = $this->librarianToken($librarian);
 
         $this->withToken($token)
-            ->postJson('/v1/librarian/logout')
+            ->postJson('/api/v1/librarian/logout')
             ->assertOk()
             ->assertJsonPath('message', 'successful logout');
 
         $this->withToken($token)
-            ->postJson('/v1/librarian/logout')
+            ->postJson('/api/v1/librarian/logout')
             ->assertUnauthorized();
     }
 
     public function test_protected_routes_reject_a_malformed_bearer_token(): void
     {
         $this->withToken('not-a-valid-token')
-            ->postJson('/v1/member/search_borrow')
+            ->postJson('/api/v1/member/search_borrow')
             ->assertUnauthorized();
 
         $this->withToken('not-a-valid-token')
-            ->postJson('/v1/librarian/logout')
+            ->postJson('/api/v1/librarian/logout')
             ->assertUnauthorized();
     }
     public function test_protected_routes_reject_requests_without_a_token(): void
     {
-        $this->postJson('/v1/member/search_borrow')
+        $this->postJson('/api/v1/member/search_borrow')
             ->assertUnauthorized();
 
-        $this->postJson('/v1/librarian/logout')
+        $this->postJson('/api/v1/librarian/logout')
             ->assertUnauthorized();
     }
 
     public function test_member_login_rejects_an_unknown_identity(): void
     {
-        $this->postJson('/v1/member/login', [
+        $this->postJson('/api/v1/member/login', [
             'email' => 'unknown-member@example.test',
             'password' => 'password-123',
         ])->assertUnauthorized()
@@ -209,7 +209,7 @@ class AuthenticationTest extends ApiTestCase
             'password' => Hash::make('correct-password'),
         ]);
 
-        $this->postJson('/v1/librarian/login', [
+        $this->postJson('/api/v1/librarian/login', [
             'email' => 'librarian-wrong-password@example.test',
             'password' => 'incorrect-password',
         ])->assertUnauthorized()
