@@ -50,8 +50,19 @@
 
 ## 4. Validation details and observations
 
-### 4.1 Search request sentinel fields
-Several search requests add `_check` via `prepareForValidation()` before validation while also declaring `required_without_all` on that field. This appears to make the “at least one search filter” constraint ineffective. Requests affected: BookSearchRequest, BorrowSearchRequest, CategorySearchRequest, LibrarianSearchRequest, MemberSearchRequest, PenaltySearchRequest. Tests should first record actual behavior; do not assume empty search is rejected.
+### 4.1 Search request criteria enforcement
+
+All six search Form Requests previously injected `_check = 'dummy'` in `prepareForValidation()` while also declaring `required_without_all` on `_check`. That made the sentinel present before validation and defeated the intended minimum-one-criterion constraint.
+
+Correction applied on 2026-11-18:
+- Removed the `prepareForValidation()` sentinel injection from BookSearchRequest, BorrowSearchRequest, CategorySearchRequest, LibrarianSearchRequest, MemberSearchRequest, and PenaltySearchRequest.
+- Kept `_check` as a validation sentinel governed by `required_without_all`; with no actual criteria, it remains absent and validation rejects the request.
+- Completed the criteria lists: book availability flags, borrow due-date-after and all penalty amount comparisons, and member penalty-balance lower/greater-than comparisons are now included.
+- Corrected the missing comma between BorrowSearchRequest's penalty amount lower/greater-than criteria.
+- `limit` is intentionally excluded from every criteria list. It is optional pagination/result-count control, not a search criterion, and cannot make a limit-only payload valid.
+- Added regression coverage for limit-only payloads across the routed book, category, and member searches, and for both empty and limit-only payloads on member borrow and penalty searches. Existing empty-payload tests remain for book, category, and member searches.
+
+The same fix was applied to LibrarianSearchRequest even though no route currently references it. Tests have been authored but not executed; runtime verification remains pending.
 
 ### 4.2 Custom rules requiring focused verification
 - `BorrowIsforMemberRule` calls `get()` and then `empty()` on the returned collection. Confirm whether foreign-member borrow IDs are actually rejected.
