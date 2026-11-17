@@ -105,7 +105,7 @@ class MemberServices extends Service
             if ($request->$attribute === null) continue;
             $attribute_value = $request->$attribute;
             if ($search_detail['operator'] == 'LIKE') $attribute_value = static::fix_str_like_op($attribute_value);
-            $attributes[] = [$search_detail['column'], $search_detail['operator'], $request->$attribute];
+            $attributes[] = [$search_detail['column'], $search_detail['operator'], $attribute_value];
         }
 
         $entities = MemberRepository::search($attributes, $request->limit);
