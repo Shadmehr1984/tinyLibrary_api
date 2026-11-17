@@ -307,3 +307,13 @@ This inventory is route-level only. Phase 1 must verify it against the actual im
 - Updated .agent/endpoint-contract-matrix.md immediately after the test commit.
 - No production code changed. No tests were executed. CI remains out of scope.
 - Next: inspect the Librarian pay_penalty endpoint for missing boundary cases (especially missing ID validation, non-positive ID, and successful payment state) and then continue reviewing remaining API endpoint gaps.
+
+
+### Phase 6 advancement (2026-11-18) — librarian penalty payment validation
+
+- Re-read current agent instructions and all required testing documents from main before implementation.
+- Inspected PenaltyPayRequest, LibrarianController::pay_penalty, PenaltyServices::pay, PenaltyAlreadyPaidException, and PayPenaltyTest.
+- Existing coverage already asserted successful payment state, repeat-payment HTTP 409, and a positive but non-existent penalty ID. Added two missing boundary tests: omitted id and id=0, each asserting validation failure on id.
+- Updated the endpoint contract matrix immediately after the test change.
+- No production code or API contract was modified. Tests have not been executed; CI remains out of scope.
+- Next: continue the cross-endpoint gap review, starting with category and member search filters and any untested validation boundaries, while keeping the independent test suite isolated.
