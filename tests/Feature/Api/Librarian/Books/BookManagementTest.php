@@ -265,4 +265,13 @@ class BookManagementTest extends ApiTestCase
             ->assertJsonValidationErrors(['available', 'not_available']);
     }
 
+
+    public function test_book_search_rejects_limit_without_a_search_criterion(): void
+    {
+        $this->authenticateAsLibrarian(TestDataFactory::librarian())
+            ->postJson('/api/v1/librarian/search_book', ['limit' => 10])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['_check']);
+    }
+
 }
