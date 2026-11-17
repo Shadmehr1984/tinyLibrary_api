@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Api\Authentication;
 
-use AppModels\Librarian;
+use App\Models\Librarian;
 use App\Models\Member;
 use Illuminate\Support\Facades\Hash;
 use Tests\Support\Api\ApiTestCase;
