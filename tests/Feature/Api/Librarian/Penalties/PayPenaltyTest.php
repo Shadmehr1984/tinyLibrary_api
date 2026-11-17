@@ -19,7 +19,7 @@ class PayPenaltyTest extends ApiTestCase
         $penalty = TestDataFactory::penalty($member, $borrow);
 
         $this->authenticateAsLibrarian($librarian)
-            ->putJson('/v1/librarian/pay_penalty', ['id' => $penalty->id])
+            ->putJson('/api/v1/librarian/pay_penalty', ['id' => $penalty->id])
             ->assertOk()
             ->assertJsonPath('message', 'penalty paid successfully');
 
@@ -35,14 +35,14 @@ class PayPenaltyTest extends ApiTestCase
         $penalty = TestDataFactory::penalty($member, $borrow, ['paid_at' => '2025-01-20']);
 
         $this->authenticateAsLibrarian($librarian)
-            ->putJson('/v1/librarian/pay_penalty', ['id' => $penalty->id])
+            ->putJson('/api/v1/librarian/pay_penalty', ['id' => $penalty->id])
             ->assertStatus(409)
             ->assertJsonPath('message', 'penalty already paid');
     }
     public function test_pay_penalty_requires_an_existing_penalty_id(): void
     {
         $this->authenticateAsLibrarian(TestDataFactory::librarian())
-            ->putJson('/v1/librarian/pay_penalty', ['id' => 999999])
+            ->putJson('/api/v1/librarian/pay_penalty', ['id' => 999999])
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['id']);
     }
@@ -51,7 +51,7 @@ class PayPenaltyTest extends ApiTestCase
     public function test_pay_penalty_requires_the_id_field(): void
     {
         $this->authenticateAsLibrarian(TestDataFactory::librarian())
-            ->putJson('/v1/librarian/pay_penalty', [])
+            ->putJson('/api/v1/librarian/pay_penalty', [])
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['id']);
     }
@@ -59,7 +59,7 @@ class PayPenaltyTest extends ApiTestCase
     public function test_pay_penalty_rejects_a_non_positive_id(): void
     {
         $this->authenticateAsLibrarian(TestDataFactory::librarian())
-            ->putJson('/v1/librarian/pay_penalty', ['id' => 0])
+            ->putJson('/api/v1/librarian/pay_penalty', ['id' => 0])
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['id']);
     }
