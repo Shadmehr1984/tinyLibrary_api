@@ -134,3 +134,9 @@ No production code or API contract was changed. No tests were run during this so
 - `limit=0` is rejected by the declared `integer|gt:0` validation; an unknown `category_id` is rejected by `exists:categories,id`. Both are now covered in one HTTP-level validation test.
 - `available=true` with `not_available=false` is a valid combination under the custom rule because it checks `isset` on the peer value; `false` is treated as unset. Added a positive-path test. The test uses Redis expectations for the cache-write path only: availability-only searches bypass `BookCacheServices::get` and then cache database results.
 - The test mocks were checked against the controller and cache service source and corrected accordingly. These tests have not been executed; runtime behavior is unverified.
+
+
+### Phase 6 — empty book-search payload validation
+
+- Added a librarian API regression expecting an empty search payload to return 422 with an `_check` validation error, based on the declared `required_without_all` rule.
+- Source review identifies a likely bypass: `BookSearchRequest::prepareForValidation()` always merges `_check = 'dummy'`, which may satisfy the required rule even when no actual search field is supplied. This is documented as a defect candidate; the test is unexecuted and no production code was changed.
