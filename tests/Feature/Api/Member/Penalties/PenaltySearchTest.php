@@ -192,4 +192,76 @@ class PenaltySearchTest extends ApiTestCase
             ->assertJsonMissing(['id' => $unpaid->id]);
     }
 
+
+    public function test_member_penalty_search_filters_by_exact_amount(): void
+    {
+        $member = TestDataFactory::member();
+        $matchingBorrow = TestDataFactory::borrow($member, TestDataFactory::book(null, ['isbn' => '9780306406157']));
+        $lowerBorrow = TestDataFactory::borrow($member, TestDataFactory::book(null, ['isbn' => '9780306406164']));
+        $higherBorrow = TestDataFactory::borrow($member, TestDataFactory::book(null, ['isbn' => '9780306406171']));
+
+        $matching = TestDataFactory::penalty($member, $matchingBorrow, ['amount' => 1000]);
+        $lower = TestDataFactory::penalty($member, $lowerBorrow, ['amount' => 500]);
+        $higher = TestDataFactory::penalty($member, $higherBorrow, ['amount' => 1500]);
+
+        $this->authenticateAsMember($member)
+            ->postJson('/v1/member/search_penalty', ['amount' => 1000])
+            ->assertOk()
+            ->assertJsonFragment(['id' => $matching->id])
+            ->assertJsonMissing(['id' => $lower->id])
+            ->assertJsonMissing(['id' => $higher->id]);
+    }
+
+    public function test_member_penalty_search_filters_by_borrowed_id(): void
+    {
+        $member = TestDataFactory::member();
+        $matchingBorrow = TestDataFactory::borrow($member, TestDataFactory::book(null, ['isbn' => '9780306406157']));
+        $otherBorrow = TestDataFactory::borrow($member, TestDataFactory::book(null, ['isbn' => '9780306406164']));
+
+        $matching = TestDataFactory::penalty($member, $matchingBorrow);
+        $other = TestDataFactory::penalty($member, $otherBorrow);
+
+        $this->authenticateAsMember($member)
+            ->postJson('/v1/member/search_penalty', ['borrowed_id' => $matchingBorrow->id])
+            ->assertOk()
+            ->assertJsonFragment(['id' => $matching->id])
+            ->assertJsonMissing(['id' => $other->id]);
+    }
+
+    public function test_member_penalty_search_filters_by_exact_calculated_date(): void
+    {
+        $member = TestDataFactory::member();
+        $matchingBorrow = TestDataFactory::borrow($member, TestDataFactory::book(null, ['isbn' => '9780306406157']));
+        $otherBorrow = TestDataFactory::borrow($member, TestDataFactory::book(null, ['isbn' => '9780306406164']));
+
+        $matching = TestDataFactory::penalty($member, $matchingBorrow, ['calculated_at' => '2025-01-20']);
+        $other = TestDataFactory::penalty($member, $otherBorrow, ['calculated_at' => '2025-01-21']);
+
+        $this->authenticateAsMember($member)
+            ->postJson('/v1/member/search_penalty', ['calculated_at' => '2025-01-20'])
+            ->assertOk()
+            ->assertJsonFragment(['id' => $matching->id])
+            ->assertJsonMissing(['id' => $other->id]);
+    }
+
+    public function test_member_penalty_search_rejects_non_positive_numeric_filters(): void
+    {
+        $member = TestDataFactory::member();
+
+        $this->authenticateAsMember($member)
+            ->postJson('/v1/member/search_penalty', [
+                'borrowed_id' => 0,
+                'amount' => 0,
+                'amount_lower_than' => 0,
+                'amount_greater_than' => 0,
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors([
+                'borrowed_id',
+                'amount',
+                'amount_lower_than',
+                'amount_greater_than',
+            ]);
+    }
+
 }
