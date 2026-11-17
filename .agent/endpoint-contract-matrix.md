@@ -27,7 +27,7 @@
 | L7 | POST `/v1/librarian/add_member` | `MemberRequest`: required name min 2, valid email + custom uniqueness rule, password min 8, custom Phone, address | 201: `message: member created` | Creates active member; membership_date is current date; penalty_balance starts at 0; password is hashed. |
 | L8 | PUT `/v1/librarian/deactivate_member` | `MemberDeactivateRequest`: required valid email, existing member | 200: `message: member deactivated` | Sets active=false. Subsequent protected member routes should be blocked by middleware. |
 | L9 | PUT `/v1/librarian/activate_member` | `MemberActivateRequest`: required valid email, existing member | 200: `message: member activated` | Sets active=true. |
-| L10 | DELETE `/v1/librarian/delete_member` | `MemberDeleteRequest`: required valid email, existing member | 200: `message: member deleted` | Repository delete is physical. Foreign-key dependencies (borrows/penalties) need explicit coverage and actual DB behavior confirmation. |
+| L10 | DELETE `/v1/librarian/delete_member` | `MemberDeleteRequest`: required valid email, existing member | 200: `message: member deleted` | Repository delete is physical. Foreign-key dependencies (borrows/penalties) have no `onDelete` cascade/null action in the migrations; default restrictive FK behavior is expected, but exact HTTP/error behavior still needs an integration test. |
 | L11 | POST `/v1/librarian/search_member` | `MemberSearchRequest`: nullable name, email, phone, address, membership_date, membership_date_before, membership_date_after, active, penalty_balance, penalty_balance_lower_than, penalty_balance_greater_than, limit | 200: `members: []` or member objects | Controller removes password from each serialized result. Verify filter combinations and password absence. |
 | L12 | PUT `/v1/librarian/update_member` | `MemberUpdateRequest`: required target_email (valid email); nullable name min 2, email, password min 8, phone, address, active boolean | 200: `message: member updated` | Updates only non-null fields. Password update path appears to store the provided value without hashing in this service; verify with a focused test and treat as a defect candidate, not an intended contract. |
 | L13 | POST `/v1/librarian/add_category` | `CategoryRequest`: required name string + custom uniqueness rule; required description string min 10 | 201: `message: category created` | Creates category. |
@@ -66,8 +66,8 @@ Several search requests add `_check` via `prepareForValidation()` before validat
 - `BookCacheServices` accesses `CacheRepository`, which directly calls Redis. `CACHE_STORE=array` does not fake the Redis facade.
 - Book cache keys are built from ISBN/title; cache retrieval only attempts a cache lookup when ISBN or title is provided. Verify title-only and ISBN-based retrieval separately.
 - The cache key expression in `BookCacheServices::get` has suspicious operator precedence and should be characterized with tests before any fix.
-- No cache invalidation is apparent in BookServices add/update/delete. Verify stale cached results after mutations.
-- Book delete sets `deleted_at`, but repository search does not visibly add a deleted_at-null condition. Verify whether deleted books remain searchable/borrowable.
+- Confirmed from current source: `BookServices::add`, `update`, and `delete` do not call `BookCacheServices` or `CacheRepository` to invalidate cached book entries. `CacheRepository` exposes set/get/search/exists/count operations but no delete/invalidation operation. The application has no visible mutation-driven cache invalidation path; whether stale results are an accepted short-lived-cache trade-off or a defect requires an explicit policy decision. Do not assert a particular invalidation policy until that decision is made.
+- Confirmed from current source: book search does not add a `deleted_at IS NULL` condition. `BookServices::delete` only sets `deleted_at`; the model does not use Laravel SoftDeletes. The source therefore does not exclude deleted books from ordinary searches. Whether deleted books should remain searchable or borrowable is an unresolved product/API policy question.
 - `BookServices::is_available` assumes a matching book exists; request validation currently checks book_id exists before add_borrow.
 - Borrow return updates borrow and book in separate repository operations; test consistency and transaction behavior on failure.
 - Search results use repository default limit 50 unless a request supplies limit.
@@ -97,3 +97,14 @@ These are source-review observations, not approved production changes:
 8. `Repository::set_attributes_name()` derives model columns using `static::$model_class::first()->getAttributes()`. When a table is empty, `first()` returns null and repository-backed create operations may fail before inserting their first record. The independent API tests for adding a book, member, and category intentionally exercise empty-table creation and may expose this source defect. Do not patch production code without user approval.
 
 No production-code changes have been made as part of this analysis.
+
+
+## 8. Phase 6 source-review update (2026-11-17)
+
+- `BookServices::add`, `update`, and `delete` contain no cache invalidation calls. `CacheRepository` has no delete/forget operation. This is a confirmed implementation fact, not yet a confirmed product defect because the intended invalidation policy is unspecified.
+- Book search does not append a `deleted_at IS NULL` condition. Book deletion only writes `deleted_at`; the `Book` model has no `SoftDeletes` trait. Search visibility of deleted books is therefore not filtered by the service/repository query. Whether this is intended remains an API/product decision.
+- `books.category_id`, `borrows.member_id`, `borrows.book_id`, `penalties.borrowed_id`, and `penalties.member_id` foreign keys are declared without cascade or null-on-delete actions. The database's default restrictive behavior should prevent deletion of referenced categories/members/books/borrows, but the precise API response/exception behavior has not been executed and remains unverified.
+- `MemberServices::update` passes password changes through the Eloquent-backed repository assignment path. `Member` uses a hashed cast (covered by the independent password-update regression test); do not label this a defect without running the test.
+- `BookCacheServices::get` contains a suspicious `$word` expression whose operator precedence should be characterized before changing it. Existing tests cover an empty cache scan on ISBN search, not a cache hit, title-only lookup, TTL, or mutation behavior.
+
+No production code or API contract was changed. No tests were run during this source review.
