@@ -264,4 +264,20 @@ class PenaltySearchTest extends ApiTestCase
             ]);
     }
 
+    public function test_member_penalty_search_rejects_an_empty_criteria_payload(): void
+    {
+        $this->authenticateAsMember(TestDataFactory::member())
+            ->postJson('/api/v1/member/search_penalty', [])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['_check']);
+    }
+
+    public function test_member_penalty_search_rejects_limit_without_a_search_criterion(): void
+    {
+        $this->authenticateAsMember(TestDataFactory::member())
+            ->postJson('/api/v1/member/search_penalty', ['limit' => 10])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['_check']);
+    }
+
 }

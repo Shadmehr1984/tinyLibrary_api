@@ -43,16 +43,8 @@ class BorrowSearchRequest extends FormRequest
             'penalty_amount_greater_than' => ['nullable', 'integer', 'gt:0'],
             'limit' => ['nullable', 'integer', 'gt:0'],
             '_check' => [
-                'required_without_all:member_id,book_id,borrowed_at,borrowed_before_at,borrowed_after_at,due_date,'.
-                'due_date_before,returned_at,returned_before_at,returned_after_at,status,penalty_amount,penalty_amount_lower_than'.
-                'penalty_amount_greater_than'
+                'required_without_all:member_id,book_id,borrowed_at,borrowed_before_at,borrowed_after_at,due_date,due_date_before,due_date_after,returned_at,returned_before_at,returned_after_at,status,penalty_amount,penalty_amount_lower_than,penalty_amount_greater_than'
             ]
         ];
-    }
-
-    public function prepareForValidation(){
-        $this->merge([
-            '_check' => 'dummy'
-        ]);
     }
 }
