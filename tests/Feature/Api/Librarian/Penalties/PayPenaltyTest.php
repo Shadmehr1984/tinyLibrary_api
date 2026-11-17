@@ -39,4 +39,12 @@ class PayPenaltyTest extends ApiTestCase
             ->assertStatus(409)
             ->assertJsonPath('message', 'penalty already paid');
     }
+    public function test_pay_penalty_requires_an_existing_penalty_id(): void
+    {
+        $this->authenticateAsLibrarian(TestDataFactory::librarian())
+            ->putJson('/v1/librarian/pay_penalty', ['id' => 999999])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['id']);
+    }
+
 }
