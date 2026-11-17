@@ -1,6 +1,6 @@
 # API Endpoint Contract Matrix
 
-**Status:** Phase 1 deliverable — source review completed; awaiting user review/approval.  
+**Status:** Phase 1 deliverable — source review completed and user approved proceeding to Phase 2.  
 **Scope:** The 24 versioned routes in `routes/api.php`. The additional `GET /test` route is an unversioned development/test route and is not counted as a public v1 endpoint.
 
 ## 1. Authentication and common behavior
