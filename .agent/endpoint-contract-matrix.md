@@ -175,3 +175,12 @@ No production code or API contract was changed. No tests were run during this so
 - Added validation coverage for limit=0, expecting a 422 error on limit. A valid status criterion is supplied so the test isolates the limit constraint.
 - Source contract: BorrowSearchRequest validates due_date_after with the custom Date rule and limit with integer|gt:0; BorrowServices maps the date filter to due_date > value.
 - Tests have not been executed. No production code or API contract was changed.
+
+
+### Phase 6 coverage update — member penalty search filters (2026-11-18)
+
+- Added API Feature coverage for the strict amount_lower_than and amount_greater_than filters on POST /v1/member/search_penalty. Each test seeds values below, exactly on, and above the boundary and asserts the service's strict < / > semantics.
+- Added exact paid_at date-filter coverage, including a different paid date and an unpaid penalty to verify exclusion.
+- Added validation coverage rejecting limit=0 while supplying a valid amount criterion, isolating the declared integer|gt:0 rule.
+- Source basis: PenaltySearchRequest validates amount bounds and paid dates; PenaltyServices::SEARCH_REQUEST_ATTRIBUTES maps the amount bounds to strict comparison operators and paid_at to equality. MemberController::search_penalty overwrites caller-supplied member_id with the authenticated member's ID; the existing member-isolation test remains in place.
+- No production code or API contract was changed. These tests are authored but have not been executed.
