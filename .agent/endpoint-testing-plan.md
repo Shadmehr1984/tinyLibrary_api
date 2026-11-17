@@ -326,3 +326,14 @@ This inventory is route-level only. Phase 1 must verify it against the actual im
 - Source review of CategoryServices::search and MemberServices::search found both compute a wildcard-normalized value through fix_str_like_op() but pass the original value to Repository::search. These tests encode the substring behavior implied by the helper and are documented as regression expectations that may expose a source defect. Do not modify production code without approval.
 - Updated the endpoint contract matrix after each meaningful advancement. No production changes and no test execution.
 - Next: review other member/category search filters and then inspect remaining untested endpoint scenarios; keep all claims about execution pending.
+
+
+## Effective HTTP URL prefix convention
+
+Laravel automatically mounts the routes declared in `routes/api.php` under `/api`. Therefore every HTTP-level Feature test must use the effective URL including `/api`, such as `/api/v1/member/login` and `/api/v1/librarian/search_book`. The route inventory above intentionally records the path strings as declared in `routes/api.php` (without the framework prefix); those declaration paths must not be copied verbatim into HTTP test requests. This distinction is mandatory for all future test additions and reviews.
+
+### Correction update — API test URL prefix (2026-11-18)
+
+- Corrected every HTTP endpoint URL in the eight independent API Feature test files to include Laravel's `/api` prefix. The correction changed 87 request URL literals across authentication, librarian, and member endpoint tests.
+- Added an explicit `/api` prefix rule to `AGENTS.md`, this plan, and `tests/Support/README.md` so future agents do not repeat the mistake.
+- Production routes and application code were not changed. Tests have not been run as part of this correction; the user reported that prior test runs failed because of the missing prefix, but no new execution result is claimed.
