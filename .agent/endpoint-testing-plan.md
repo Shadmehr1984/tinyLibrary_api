@@ -161,13 +161,13 @@ This inventory is route-level only. Phase 1 must verify it against the actual im
 ## 7. Progress tracking — update immediately
 
 **Last updated:** 2026-11-17  
-**Overall status:** Plan documented; implementation not started.  
-**Current phase:** Phase 1 — API contract analysis (not started).
+**Overall status:** Agent documentation committed; Phase 1 analysis in progress; implementation not started.  
+**Current phase:** Phase 1 — API contract analysis (in progress).
 
 | Phase | Status | Progress / notes |
 |---|---|---|
 | Plan and scope | Complete | User approved the proposed approach. This document records scope, constraints, folder proposal, coverage, and delivery phases. |
-| 1. API contract analysis | Not started | Next: inspect all 24 endpoint contracts and produce a detailed endpoint matrix/scenario inventory. |
+| 1. API contract analysis | In progress | Initial route/controller review is available from the planning pass. Deep inspection of Form Requests, middleware, services, repositories, models, and exact request/response contracts is underway. No implementation has started. |
 | 2. Test infrastructure | Not started | Blocked on Phase 1 findings and approval. |
 | 3. Authentication & security | Not started | Blocked on Phase 2. |
 | 4. Librarian API | Not started | Blocked on Phase 2 and security foundations. |
