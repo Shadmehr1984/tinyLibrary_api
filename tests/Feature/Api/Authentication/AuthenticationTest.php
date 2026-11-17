@@ -191,4 +191,31 @@ class AuthenticationTest extends ApiTestCase
             ->assertUnauthorized();
     }
 
+    public function test_member_login_rejects_an_unknown_identity(): void
+    {
+        $this->postJson('/v1/member/login', [
+            'email' => 'unknown-member@example.test',
+            'password' => 'password-123',
+        ])->assertUnauthorized()
+            ->assertJsonPath('message', 'invalid email or password');
+
+        $this->assertDatabaseCount('personal_access_tokens', 0);
+    }
+
+    public function test_librarian_login_rejects_an_incorrect_password(): void
+    {
+        TestDataFactory::librarian([
+            'email' => 'librarian-wrong-password@example.test',
+            'password' => Hash::make('correct-password'),
+        ]);
+
+        $this->postJson('/v1/librarian/login', [
+            'email' => 'librarian-wrong-password@example.test',
+            'password' => 'incorrect-password',
+        ])->assertUnauthorized()
+            ->assertJsonPath('massage', 'invalid email or password');
+
+        $this->assertDatabaseCount('personal_access_tokens', 0);
+    }
+
 }
