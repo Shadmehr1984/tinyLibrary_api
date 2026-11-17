@@ -109,4 +109,87 @@ class PenaltySearchTest extends ApiTestCase
             ->assertJsonValidationErrors(['limit']);
     }
 
+
+    public function test_member_penalty_search_can_filter_calculated_before_date_strictly(): void
+    {
+        $member = TestDataFactory::member();
+        $earlierBorrow = TestDataFactory::borrow($member, TestDataFactory::book(null, ['isbn' => '9780306406157']));
+        $boundaryBorrow = TestDataFactory::borrow($member, TestDataFactory::book(null, ['isbn' => '9780306406164']));
+        $laterBorrow = TestDataFactory::borrow($member, TestDataFactory::book(null, ['isbn' => '9780306406171']));
+
+        $earlier = TestDataFactory::penalty($member, $earlierBorrow, ['calculated_at' => '2025-01-19']);
+        $boundary = TestDataFactory::penalty($member, $boundaryBorrow, ['calculated_at' => '2025-01-20']);
+        $later = TestDataFactory::penalty($member, $laterBorrow, ['calculated_at' => '2025-01-21']);
+
+        $this->authenticateAsMember($member)
+            ->postJson('/v1/member/search_penalty', ['calculated_before_at' => '2025-01-20'])
+            ->assertOk()
+            ->assertJsonFragment(['id' => $earlier->id])
+            ->assertJsonMissing(['id' => $boundary->id])
+            ->assertJsonMissing(['id' => $later->id]);
+    }
+
+    public function test_member_penalty_search_can_filter_calculated_after_date_strictly(): void
+    {
+        $member = TestDataFactory::member();
+        $earlierBorrow = TestDataFactory::borrow($member, TestDataFactory::book(null, ['isbn' => '9780306406157']));
+        $boundaryBorrow = TestDataFactory::borrow($member, TestDataFactory::book(null, ['isbn' => '9780306406164']));
+        $laterBorrow = TestDataFactory::borrow($member, TestDataFactory::book(null, ['isbn' => '9780306406171']));
+
+        $earlier = TestDataFactory::penalty($member, $earlierBorrow, ['calculated_at' => '2025-01-19']);
+        $boundary = TestDataFactory::penalty($member, $boundaryBorrow, ['calculated_at' => '2025-01-20']);
+        $later = TestDataFactory::penalty($member, $laterBorrow, ['calculated_at' => '2025-01-21']);
+
+        $this->authenticateAsMember($member)
+            ->postJson('/v1/member/search_penalty', ['calculated_after_at' => '2025-01-20'])
+            ->assertOk()
+            ->assertJsonFragment(['id' => $later->id])
+            ->assertJsonMissing(['id' => $boundary->id])
+            ->assertJsonMissing(['id' => $earlier->id]);
+    }
+
+    public function test_member_penalty_search_can_filter_paid_before_date_strictly(): void
+    {
+        $member = TestDataFactory::member();
+        $earlierBorrow = TestDataFactory::borrow($member, TestDataFactory::book(null, ['isbn' => '9780306406157']));
+        $boundaryBorrow = TestDataFactory::borrow($member, TestDataFactory::book(null, ['isbn' => '9780306406164']));
+        $laterBorrow = TestDataFactory::borrow($member, TestDataFactory::book(null, ['isbn' => '9780306406171']));
+        $unpaidBorrow = TestDataFactory::borrow($member, TestDataFactory::book(null, ['isbn' => '9780306406188']));
+
+        $earlier = TestDataFactory::penalty($member, $earlierBorrow, ['paid_at' => '2025-01-19']);
+        $boundary = TestDataFactory::penalty($member, $boundaryBorrow, ['paid_at' => '2025-01-20']);
+        $later = TestDataFactory::penalty($member, $laterBorrow, ['paid_at' => '2025-01-21']);
+        $unpaid = TestDataFactory::penalty($member, $unpaidBorrow);
+
+        $this->authenticateAsMember($member)
+            ->postJson('/v1/member/search_penalty', ['paid_before_at' => '2025-01-20'])
+            ->assertOk()
+            ->assertJsonFragment(['id' => $earlier->id])
+            ->assertJsonMissing(['id' => $boundary->id])
+            ->assertJsonMissing(['id' => $later->id])
+            ->assertJsonMissing(['id' => $unpaid->id]);
+    }
+
+    public function test_member_penalty_search_can_filter_paid_after_date_strictly(): void
+    {
+        $member = TestDataFactory::member();
+        $earlierBorrow = TestDataFactory::borrow($member, TestDataFactory::book(null, ['isbn' => '9780306406157']));
+        $boundaryBorrow = TestDataFactory::borrow($member, TestDataFactory::book(null, ['isbn' => '9780306406164']));
+        $laterBorrow = TestDataFactory::borrow($member, TestDataFactory::book(null, ['isbn' => '9780306406171']));
+        $unpaidBorrow = TestDataFactory::borrow($member, TestDataFactory::book(null, ['isbn' => '9780306406188']));
+
+        $earlier = TestDataFactory::penalty($member, $earlierBorrow, ['paid_at' => '2025-01-19']);
+        $boundary = TestDataFactory::penalty($member, $boundaryBorrow, ['paid_at' => '2025-01-20']);
+        $later = TestDataFactory::penalty($member, $laterBorrow, ['paid_at' => '2025-01-21']);
+        $unpaid = TestDataFactory::penalty($member, $unpaidBorrow);
+
+        $this->authenticateAsMember($member)
+            ->postJson('/v1/member/search_penalty', ['paid_after_at' => '2025-01-20'])
+            ->assertOk()
+            ->assertJsonFragment(['id' => $later->id])
+            ->assertJsonMissing(['id' => $boundary->id])
+            ->assertJsonMissing(['id' => $earlier->id])
+            ->assertJsonMissing(['id' => $unpaid->id]);
+    }
+
 }
