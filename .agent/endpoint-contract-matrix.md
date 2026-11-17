@@ -1,0 +1,98 @@
+# API Endpoint Contract Matrix
+
+**Status:** Phase 1 deliverable — source review completed; awaiting user review/approval.  
+**Scope:** The 24 versioned routes in `routes/api.php`. The additional `GET /test` route is an unversioned development/test route and is not counted as a public v1 endpoint.
+
+## 1. Authentication and common behavior
+
+- Librarian routes use the `auth:librarian` guard, configured as Sanctum with the `librarians` provider.
+- Member routes use `auth:member`, configured as Sanctum with the `members` provider, plus `MemberIsActive` on every protected member route.
+- Login endpoints are public.
+- `MemberIsActive` returns HTTP 403 with `{"message":"member is de active"}` when the authenticated member is inactive.
+- Form Requests inspected all return `authorize(): true`; access control is therefore supplied by route middleware, not Form Request authorization.
+- Repository search defaults to a maximum of 50 records when no `limit` is supplied.
+- Models use `$timestamps = false`; migrations do not define Eloquent timestamps for domain tables.
+- The test environment in `phpunit.xml` uses SQLite in-memory and `CACHE_STORE=array`, but the book-cache repository directly calls the Redis facade. Array cache configuration alone does not isolate those Redis calls.
+
+## 2. Librarian endpoints
+
+| # | Method and path | Request / validation contract | Success response | Main behavior / scenarios |
+|---|---|---|---|---|
+| L1 | POST `/v1/librarian/login` | `LibrarianLoginRequest`: required valid email; required password string, min 8 | 200: `massage`, `librarian`, `token` | Unknown email or wrong password returns 401 with `massage`. Successful login issues Sanctum token. Note response key spelling `massage` is current behavior. |
+| L2 | POST `/v1/librarian/logout` | No Form Request; `auth:librarian` | 200: `message: successful logout` | Deletes current access token. Verify token is rejected after logout. |
+| L3 | POST `/v1/librarian/add_book` | `BookRequest`: required title, author, ISBN (custom ISBN + unique), published (custom Date), publisher, category_id (positive integer, existing category), total_copies (positive integer), description (string min 10), location | 201: `message: book created` | Creates book; initial available_copies is set to total_copies. |
+| L4 | DELETE `/v1/librarian/delete_book` | `BookDeleteRequest`: required valid ISBN, existing book | 200: `message: book deleted` | Sets `deleted_at` (soft-delete-like behavior), rather than physically deleting. Verify how subsequent search treats deleted records. |
+| L5 | POST `/v1/librarian/search_book` | `BookSearchRequest`: nullable title, author, ISBN, published, published_before, published_after, publisher, category_id, total_copies, total_copies_lower_than, total_copies_greater_than, available_copies, available_copies_lower_than, available_copies_greater_than, description, location, available, not_available, limit. ISBN/date/numeric/string/bool constraints apply. | 200: `books: []` or matching book objects | Supports combined filters and cache path. `available` and `not_available` are mutually exclusive by custom rule. |
+| L6 | PUT `/v1/librarian/update_book` | `BookUpdateRequest`: required target_isbn (valid existing ISBN); nullable title, author, ISBN (custom uniqueness rule), published (custom Date), publisher, category_id (positive existing), total_copies (positive), description (string min 10), location | 200: `message: book updated` | Updates only non-null attributes. No explicit check in service that total_copies remains >= currently borrowed copies; verify expected domain policy before writing assertions. |
+| L7 | POST `/v1/librarian/add_member` | `MemberRequest`: required name min 2, valid email + custom uniqueness rule, password min 8, custom Phone, address | 201: `message: member created` | Creates active member; membership_date is current date; penalty_balance starts at 0; password is hashed. |
+| L8 | PUT `/v1/librarian/deactivate_member` | `MemberDeactivateRequest`: required valid email, existing member | 200: `message: member deactivated` | Sets active=false. Subsequent protected member routes should be blocked by middleware. |
+| L9 | PUT `/v1/librarian/activate_member` | `MemberActivateRequest`: required valid email, existing member | 200: `message: member activated` | Sets active=true. |
+| L10 | DELETE `/v1/librarian/delete_member` | `MemberDeleteRequest`: required valid email, existing member | 200: `message: member deleted` | Repository delete is physical. Foreign-key dependencies (borrows/penalties) need explicit coverage and actual DB behavior confirmation. |
+| L11 | POST `/v1/librarian/search_member` | `MemberSearchRequest`: nullable name, email, phone, address, membership_date, membership_date_before, membership_date_after, active, penalty_balance, penalty_balance_lower_than, penalty_balance_greater_than, limit | 200: `members: []` or member objects | Controller removes password from each serialized result. Verify filter combinations and password absence. |
+| L12 | PUT `/v1/librarian/update_member` | `MemberUpdateRequest`: required target_email (valid email); nullable name min 2, email, password min 8, phone, address, active boolean | 200: `message: member updated` | Updates only non-null fields. Password update path appears to store the provided value without hashing in this service; verify with a focused test and treat as a defect candidate, not an intended contract. |
+| L13 | POST `/v1/librarian/add_category` | `CategoryRequest`: required name string + custom uniqueness rule; required description string min 10 | 201: `message: category created` | Creates category. |
+| L14 | DELETE `/v1/librarian/delete_category` | `CategoryDeleteRequest`: required positive integer id, existing category | 200: `message: category deleted` | Physically deletes category. Book foreign-key dependencies need explicit behavior coverage. |
+| L15 | POST `/v1/librarian/search_category` | `CategorySearchRequest`: nullable name, description (string min 10 max 40), limit | 200: `categories: []` or category objects | Search service builds LIKE filters; source currently computes a wildcard-normalized value but passes the original request value to the repository. |
+| L16 | PUT `/v1/librarian/update_category` | `CategoryUpdateRequest`: required positive existing target_id; nullable name string, description string min 10 | 200: `message: category updated` | Updates non-null fields. Duplicate-name behavior is ultimately constrained by database unique index; request has no explicit uniqueness rule. |
+| L17 | PUT `/v1/librarian/pay_penalty` | `PenaltyPayRequest`: required positive integer id, existing penalty | 200: `message: penalty paid successfully`; 409 if already paid | Sets paid_at to current date; already-paid penalty raises `PenaltyAlreadyPaidException`. |
+
+## 3. Member endpoints
+
+| # | Method and path | Request / validation contract | Success response | Main behavior / scenarios |
+|---|---|---|---|---|
+| M1 | POST `/v1/member/login` | `MemberLoginRequest`: required valid email; required password string min 8 | 200: `massage`, `member`, `token` | Unknown email, wrong password, or inactive member returns 401 with `message`. Successful login issues Sanctum token. Response key on success is currently `massage`. |
+| M2 | POST `/v1/member/logout` | No Form Request; `auth:member` + `MemberIsActive` | 200: `message: successful logout` | Deletes current token. Because active middleware runs first, an inactive member cannot reach logout through this route. |
+| M3 | POST `/v1/member/search_book` | Same `BookSearchRequest` as L5 | 200: `books: []` or matching book objects | Same BookCacheServices path as librarian book search. |
+| M4 | POST `/v1/member/add_borrow` | `BorrowRequest`: required positive existing book_id; member_id nullable positive existing (controller overwrites with authenticated member id); custom duplicate-borrow rule | 201: `message: borrow book successful`; 403 unpaid penalty; 409 borrow limit or unavailable book | Maximum active borrows is 3. Successful borrow inserts borrow and decrements available_copies. |
+| M5 | POST `/v1/member/search_borrow` | `BorrowSearchRequest`: nullable member_id, book_id, borrowed_at/before/after, due_date/before/after, returned_at/before/after, status in borrowed/returned/overdue, penalty_amount and bounds, limit | 200: `borrows: []` or borrow objects | Controller overwrites member_id with authenticated member id, so caller cannot search another member's borrows. |
+| M6 | PUT `/v1/member/back_borrow` | `BorrowBackRequest`: required integer id; custom ownership rule and custom not-returned rule | 200: `message: book back`; 403 unpaid penalty | Sets returned_at and status=returned, then increments available_copies. Must test ownership and already-returned protection carefully; both custom rules have suspicious collection handling (see findings). |
+| M7 | POST `/v1/member/search_penalty` | `PenaltySearchRequest`: nullable borrowed_id, member_id, amount and bounds, calculated_at/before/after, paid_at/before/after, limit | 200: `penalties: []` or penalty objects | Controller overwrites member_id with authenticated member id, enforcing member scoping at controller level. |
+
+## 4. Validation details and observations
+
+### 4.1 Search request sentinel fields
+Several search requests add `_check` via `prepareForValidation()` before validation while also declaring `required_without_all` on that field. This appears to make the “at least one search filter” constraint ineffective. Requests affected: BookSearchRequest, BorrowSearchRequest, CategorySearchRequest, LibrarianSearchRequest, MemberSearchRequest, PenaltySearchRequest. Tests should first record actual behavior; do not assume empty search is rejected.
+
+### 4.2 Custom rules requiring focused verification
+- `BorrowIsforMemberRule` calls `get()` and then `empty()` on the returned collection. Confirm whether foreign-member borrow IDs are actually rejected.
+- `BorrowNotReturnedRule` compares the collection returned by `get()` directly with the string `returned`. Confirm whether already-returned borrows are actually rejected.
+- `BookIsbnNotExistsRule` uses a collection returned by `get()` in a truthiness check. Verify uniqueness validation for changed ISBNs.
+- `BookSearchRequest` uses `new date` for published_before/published_after while other date fields use the project's custom Date rule. Verify runtime behavior for these two fields.
+- `BorrowSearchRequest`'s `required_without_all` field list appears to omit some filters and has a concatenation boundary worth checking; the injected `_check` currently masks this condition.
+
+### 4.3 Service-level behavior requiring regression coverage
+- `CategoryServices::search`, `MemberServices::search`, and `LibrarianServices::search` compute a normalized LIKE value but append the original value to repository filters.
+- `MemberServices::take_update_attributes` does not hash a changed password before persistence, unlike member creation.
+- `BookCacheServices` accesses `CacheRepository`, which directly calls Redis. `CACHE_STORE=array` does not fake the Redis facade.
+- Book cache keys are built from ISBN/title; cache retrieval only attempts a cache lookup when ISBN or title is provided. Verify title-only and ISBN-based retrieval separately.
+- The cache key expression in `BookCacheServices::get` has suspicious operator precedence and should be characterized with tests before any fix.
+- No cache invalidation is apparent in BookServices add/update/delete. Verify stale cached results after mutations.
+- Book delete sets `deleted_at`, but repository search does not visibly add a deleted_at-null condition. Verify whether deleted books remain searchable/borrowable.
+- `BookServices::is_available` assumes a matching book exists; request validation currently checks book_id exists before add_borrow.
+- Borrow return updates borrow and book in separate repository operations; test consistency and transaction behavior on failure.
+- Search results use repository default limit 50 unless a request supplies limit.
+
+## 5. Persistence model and test-data implications
+
+- Domain tables: categories, books, members, borrows, penalties, librarians.
+- Foreign keys: books.category_id -> categories.id; borrows.member_id -> members.id; borrows.book_id -> books.id; penalties.borrowed_id -> borrows.id; penalties.member_id -> members.id.
+- Unique constraints: category name; book ISBN; member email; librarian email; borrow (member_id, book_id, borrowed_at); penalty (member_id, borrowed_id).
+- Book uses a nullable `deleted_at` column but no Eloquent SoftDeletes trait is present in the inspected model.
+- Existing Laravel factories exist for Book, Borrow, Category, Librarian, Member, and Penalty. Several use arbitrary numeric foreign-key IDs, so they are not automatically safe for isolated tests without creating related records or overriding foreign keys. The independent test support layer should create relationships explicitly and use deterministic attributes.
+
+## 6. Proposed independent test layout
+
+The plan in `.agent/endpoint-testing-plan.md` remains the baseline. Phase 2 may refine names/placement based on the endpoint matrix. Keep tests in a distinct `tests/Feature/Api` namespace and shared helpers under `tests/Support`; do not extend the user's existing test classes or test cases.
+
+## 7. Phase 1 open questions / defect candidates
+
+These are source-review observations, not approved production changes:
+1. Are empty search requests intended to return all results (up to limit) or validation errors?
+2. Should a member be able to return only their own active borrow? Current custom validation implementation appears unreliable.
+3. Should book soft-deleted records be excluded from searches and borrow creation?
+4. Should updating a member password hash the new value?
+5. What is the intended cache invalidation policy for book create/update/delete?
+6. Are response key typos (`massage`) part of a compatibility contract or should they be corrected in a separately approved API change?
+7. What is the intended behavior when deleting categories/members with dependent records, given foreign keys?
+
+No production-code changes have been made as part of this analysis.
