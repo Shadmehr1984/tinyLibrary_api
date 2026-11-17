@@ -111,4 +111,20 @@ class MemberManagementTest extends ApiTestCase
             ->assertJsonValidationErrors(['phone']);
     }
 
+    public function test_member_password_updates_are_stored_as_a_hash(): void
+    {
+        $librarian = TestDataFactory::librarian();
+        $member = TestDataFactory::member(['email' => 'password-update@example.test']);
+
+        $this->authenticateAsLibrarian($librarian)
+            ->putJson('/v1/librarian/update_member', [
+                'target_email' => $member->email,
+                'password' => 'new-member-password',
+            ])->assertOk();
+
+        $updatedMember = $member->fresh();
+        $this->assertNotSame('new-member-password', $updatedMember->password);
+        $this->assertTrue(Hash::check('new-member-password', $updatedMember->password));
+    }
+
 }
