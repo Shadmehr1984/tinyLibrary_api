@@ -220,9 +220,10 @@ class BookManagementTest extends ApiTestCase
             'available_copies' => 2,
         ]);
 
-        Redis::shouldReceive('scan')
+        Redis::shouldReceive('exists')
             ->once()
-            ->andReturn(['0', []]);
+            ->with('book-' . $book->isbn . '-' . $book->title)
+            ->andReturn(0);
         Redis::shouldReceive('dbSize')
             ->once()
             ->andReturn(0);
