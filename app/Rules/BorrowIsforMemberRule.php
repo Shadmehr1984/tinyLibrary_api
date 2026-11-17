@@ -20,8 +20,8 @@ class BorrowIsforMemberRule implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $borrow = DB::table('borrows')->select('id')->where('id', '=', $value)->where('member_id', '=', $this->member_id)->get();
-        if (empty($borrow->id)){
+        $borrow = DB::table('borrows')->select()->where('id', '=', $value)->where('member_id', '=', $this->member_id)->exists();
+        if (!$borrow){
             $fail('borrow not exists');
         }
     }
