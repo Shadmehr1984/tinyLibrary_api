@@ -42,10 +42,4 @@ class PenaltySearchRequest extends FormRequest
             'calculated_at,calculated_before_at,calculated_after_at,paid_at,paid_before_at,paid_after_at'] 
         ];
     }
-
-    public function prepareForValidation(){
-        $this->merge([
-            '_check' => 'dummy'
-        ]);
-    }
 }
