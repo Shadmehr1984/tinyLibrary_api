@@ -98,4 +98,17 @@ class MemberManagementTest extends ApiTestCase
 
         $this->assertDatabaseMissing('members', ['id' => $member->id]);
     }
+    public function test_add_member_rejects_an_invalid_phone_number(): void
+    {
+        $this->authenticateAsLibrarian(TestDataFactory::librarian())
+            ->postJson('/v1/librarian/add_member', [
+                'name' => 'Invalid Phone Member',
+                'email' => 'invalid-phone@example.test',
+                'password' => 'member-password',
+                'phone' => '+not-a-number',
+                'address' => 'Member Address',
+            ])->assertUnprocessable()
+            ->assertJsonValidationErrors(['phone']);
+    }
+
 }
