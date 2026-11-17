@@ -13,7 +13,7 @@ class CategoryManagementTest extends ApiTestCase
     public function test_librarian_can_add_a_category(): void
     {
         $this->authenticateAsLibrarian(TestDataFactory::librarian())
-            ->postJson('/v1/librarian/add_category', [
+            ->postJson('/api/v1/librarian/add_category', [
                 'name' => 'Computer Science',
                 'description' => 'Books about computer science.',
             ])->assertCreated()
@@ -31,13 +31,13 @@ class CategoryManagementTest extends ApiTestCase
         ]);
 
         $this->authenticateAsLibrarian($librarian)
-            ->putJson('/v1/librarian/update_category', [
+            ->putJson('/api/v1/librarian/update_category', [
                 'target_id' => $category->id,
                 'name' => 'Updated Category',
             ])->assertOk()
             ->assertJsonPath('message', 'category updated');
 
-        $this->postJson('/v1/librarian/search_category', ['name' => 'Updated Category'])
+        $this->postJson('/api/v1/librarian/search_category', ['name' => 'Updated Category'])
             ->assertOk()
             ->assertJsonPath('categories.0.name', 'Updated Category');
     }
@@ -48,7 +48,7 @@ class CategoryManagementTest extends ApiTestCase
         $category = TestDataFactory::category();
 
         $this->authenticateAsLibrarian($librarian)
-            ->deleteJson('/v1/librarian/delete_category', ['id' => $category->id])
+            ->deleteJson('/api/v1/librarian/delete_category', ['id' => $category->id])
             ->assertOk()
             ->assertJsonPath('message', 'category deleted');
 
@@ -58,7 +58,7 @@ class CategoryManagementTest extends ApiTestCase
     public function test_category_search_rejects_a_request_without_any_search_criteria(): void
     {
         $this->authenticateAsLibrarian(TestDataFactory::librarian())
-            ->postJson('/v1/librarian/search_category', [])
+            ->postJson('/api/v1/librarian/search_category', [])
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['_check']);
     }
@@ -68,7 +68,7 @@ class CategoryManagementTest extends ApiTestCase
         TestDataFactory::category(['name' => 'Duplicate Category']);
         
         $this->authenticateAsLibrarian(TestDataFactory::librarian())
-            ->postJson('/v1/librarian/add_category', [
+            ->postJson('/api/v1/librarian/add_category', [
                 'name' => 'Duplicate Category',
                 'description' => 'Another description for the same category.',
             ])->assertUnprocessable()
@@ -83,7 +83,7 @@ class CategoryManagementTest extends ApiTestCase
         $other = TestDataFactory::category(['name' => 'Computer Networks']);
 
         $this->authenticateAsLibrarian($librarian)
-            ->postJson('/v1/librarian/search_category', ['name' => 'Systems'])
+            ->postJson('/api/v1/librarian/search_category', ['name' => 'Systems'])
             ->assertOk()
             ->assertJsonFragment(['id' => $matching->id])
             ->assertJsonMissing(['id' => $other->id]);
