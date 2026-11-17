@@ -193,3 +193,10 @@ No production code or API contract was changed. No tests were run during this so
 
 
 - Librarian penalty payment validation coverage (2026-11-18): `PayPenaltyTest` already covered successful payment, repeat payment conflict (409), and a non-existent positive ID. Added API tests for an omitted `id` and `id=0`, both asserting the Form Request's required/integer/gt:0 validation error. No response assumptions beyond the explicit validation contract were added. Tests are authored, not executed.
+
+
+### Search LIKE regression coverage (2026-11-18)
+
+- Added partial-name search tests for librarian category and member search. Each supplies a substring and asserts that a longer matching name is returned while a non-matching record is excluded.
+- Source-review finding: both CategoryServices::search and MemberServices::search call fix_str_like_op() to produce a `%term%` pattern, but then append the original request value to the repository condition rather than the normalized value. This makes the intended partial-match behavior a source-level defect candidate; the new tests intentionally express substring matching and may fail until separately approved production correction. No production code was changed.
+- Tests are authored but unexecuted.
