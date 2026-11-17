@@ -176,4 +176,13 @@ class MemberManagementTest extends ApiTestCase
             ->assertJsonMissing(['id' => $other->id]);
     }
 
+
+    public function test_member_search_rejects_limit_without_a_search_criterion(): void
+    {
+        $this->authenticateAsLibrarian(TestDataFactory::librarian())
+            ->postJson('/api/v1/librarian/search_member', ['limit' => 10])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['_check']);
+    }
+
 }
