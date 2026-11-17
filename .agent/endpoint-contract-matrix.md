@@ -200,3 +200,10 @@ No production code or API contract was changed. No tests were run during this so
 - Added partial-name search tests for librarian category and member search. Each supplies a substring and asserts that a longer matching name is returned while a non-matching record is excluded.
 - Source-review finding: both CategoryServices::search and MemberServices::search call fix_str_like_op() to produce a `%term%` pattern, but then append the original request value to the repository condition rather than the normalized value. This makes the intended partial-match behavior a source-level defect candidate; the new tests intentionally express substring matching and may fail until separately approved production correction. No production code was changed.
 - Tests are authored but unexecuted.
+
+
+## Effective HTTP URL prefix
+
+The route declarations in `routes/api.php` use paths such as `/v1/member/login`, but Laravel automatically adds the `/api` prefix to API routes. The effective HTTP URL is therefore `/api/v1/member/login`. All HTTP Feature tests and future endpoint examples must use the effective `/api/v1/...` path. The `/v1/...` paths in the endpoint matrix identify the route-file declarations only, not the complete request URL.
+
+Correction recorded 2026-11-18: the eight independent API Feature test files were updated to include `/api` in all endpoint request URLs (87 URL literals corrected). No production code or route declaration was changed; runtime verification remains pending.
