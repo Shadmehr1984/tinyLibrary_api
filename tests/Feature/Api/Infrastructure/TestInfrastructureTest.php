@@ -1,11 +1,11 @@
 <?php
 
-namespace Tests\\Feature\\Api\\Infrastructure;
+namespace Tests\Feature\Api\Infrastructure;
 
-use Illuminate\\Support\\Facades\\Redis;
-use Tests\\Support\\Api\\ApiTestCase;
-use Tests\\Support\\Factories\\TestDataFactory;
-use Tests\\Support\\Helpers\\AuthenticatesApiUsers;
+use Illuminate\Support\Facades\Redis;
+use Tests\Support\Api\ApiTestCase;
+use Tests\Support\Factories\TestDataFactory;
+use Tests\Support\Helpers\AuthenticatesApiUsers;
 
 class TestInfrastructureTest extends ApiTestCase
 {
