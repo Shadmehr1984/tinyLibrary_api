@@ -47,4 +47,21 @@ class PayPenaltyTest extends ApiTestCase
             ->assertJsonValidationErrors(['id']);
     }
 
+
+    public function test_pay_penalty_requires_the_id_field(): void
+    {
+        $this->authenticateAsLibrarian(TestDataFactory::librarian())
+            ->putJson('/v1/librarian/pay_penalty', [])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['id']);
+    }
+
+    public function test_pay_penalty_rejects_a_non_positive_id(): void
+    {
+        $this->authenticateAsLibrarian(TestDataFactory::librarian())
+            ->putJson('/v1/librarian/pay_penalty', ['id' => 0])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['id']);
+    }
+
 }
