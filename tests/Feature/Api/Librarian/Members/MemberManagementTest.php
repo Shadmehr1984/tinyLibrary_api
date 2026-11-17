@@ -98,6 +98,26 @@ class MemberManagementTest extends ApiTestCase
 
         $this->assertDatabaseMissing('members', ['id' => $member->id]);
     }
+
+    public function test_member_search_can_filter_inactive_members(): void
+    {
+        $librarian = TestDataFactory::librarian();
+        $inactiveMember = TestDataFactory::member([
+            'email' => 'inactive-search@example.test',
+            'active' => false,
+        ]);
+        $activeMember = TestDataFactory::member([
+            'email' => 'active-search@example.test',
+            'active' => true,
+        ]);
+
+        $this->authenticateAsLibrarian($librarian)
+            ->postJson('/v1/librarian/search_member', ['active' => false])
+            ->assertOk()
+            ->assertJsonFragment(['email' => $inactiveMember->email])
+            ->assertJsonMissing(['email' => $activeMember->email]);
+    }
+
     public function test_add_member_rejects_an_invalid_phone_number(): void
     {
         $this->authenticateAsLibrarian(TestDataFactory::librarian())
