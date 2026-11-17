@@ -100,7 +100,7 @@ The plan in `.agent/endpoint-testing-plan.md` remains the baseline. Phase 2 may 
 
 These are source-review observations, not approved production changes:
 1. Are empty search requests intended to return all results (up to limit) or validation errors?
-2. Should a member be able to return only their own active borrow? Current custom validation implementation appears unreliable.
+2. Should a member be able to return only their own active borrow? The ownership and already-returned checks have now been corrected to use database existence queries; regression tests cover both cases, but runtime verification is pending.
 3. Should book soft-deleted records be excluded from searches and borrow creation?
 4. Should updating a member password hash the new value?
 5. What is the intended cache invalidation policy for book create/update/delete?
@@ -218,3 +218,14 @@ No production code or API contract was changed. No tests were run during this so
 The route declarations in `routes/api.php` use paths such as `/v1/member/login`, but Laravel automatically adds the `/api` prefix to API routes. The effective HTTP URL is therefore `/api/v1/member/login`. All HTTP Feature tests and future endpoint examples must use the effective `/api/v1/...` path. The `/v1/...` paths in the endpoint matrix identify the route-file declarations only, not the complete request URL.
 
 Correction recorded 2026-11-18: the eight independent API Feature test files were updated to include `/api` in all endpoint request URLs (87 URL literals corrected). No production code or route declaration was changed; runtime verification remains pending.
+
+
+## Custom validation Rule correction — 2026-11-18
+
+- `BorrowIsforMemberRule` was fixed by the user in the latest commit using Query Builder `exists()`; it rejects a borrow unless the supplied ID belongs to the authenticated member.
+- Applied the same existence-query pattern to `BorrowNotReturnedRule`, `BookIsbnNotExistsRule`, `DuplicateBorrowRule`, `MemberEmailNotExists`, `LibrarianEmailNotExists`, and `CategoryNameNotExists`.
+- `BorrowNotReturnedRule` now checks the combined condition `id = supplied borrow ID AND status = returned`; it fails only when that matching returned borrow exists.
+- The previous collection-to-string comparison in `BorrowNotReturnedRule` and Collection truthiness in the ISBN/librarian-email rules were incorrect. Result-count checks in the other uniqueness rules were replaced with the simpler existence query.
+- Regression coverage already exists for duplicate book ISBN, duplicate category name, duplicate same-day borrow, borrow ownership, already-returned borrow, and updating to an unused ISBN. Added duplicate member-email API validation coverage.
+- `LibrarianEmailNotExists` is not currently referenced by the inspected `LibrarianLoginRequest`; its implementation was normalized but it remains unused.
+- Changes are committed on `main`. Tests have not been executed, so no runtime pass claim is made.
