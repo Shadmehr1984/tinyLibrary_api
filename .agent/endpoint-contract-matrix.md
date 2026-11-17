@@ -184,3 +184,6 @@ No production code or API contract was changed. No tests were run during this so
 - Added validation coverage rejecting limit=0 while supplying a valid amount criterion, isolating the declared integer|gt:0 rule.
 - Source basis: PenaltySearchRequest validates amount bounds and paid dates; PenaltyServices::SEARCH_REQUEST_ATTRIBUTES maps the amount bounds to strict comparison operators and paid_at to equality. MemberController::search_penalty overwrites caller-supplied member_id with the authenticated member's ID; the existing member-isolation test remains in place.
 - No production code or API contract was changed. These tests are authored but have not been executed.
+
+
+- Follow-up date-range coverage (2026-11-18): added four member penalty API tests for calculated_before_at, calculated_after_at, paid_before_at, and paid_after_at. Each test seeds records before, on, and after the date boundary and asserts strict less-than/greater-than behavior; paid-date tests also assert that unpaid penalties are excluded. The source mapping is explicit in PenaltyServices::SEARCH_REQUEST_ATTRIBUTES. Authored only; not executed.
