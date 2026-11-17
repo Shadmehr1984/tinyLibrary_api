@@ -182,4 +182,13 @@ class AuthenticationTest extends ApiTestCase
             ->postJson('/v1/librarian/logout')
             ->assertUnauthorized();
     }
+    public function test_protected_routes_reject_requests_without_a_token(): void
+    {
+        $this->postJson('/v1/member/search_borrow')
+            ->assertUnauthorized();
+
+        $this->postJson('/v1/librarian/logout')
+            ->assertUnauthorized();
+    }
+
 }
