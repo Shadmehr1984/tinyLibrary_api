@@ -140,3 +140,10 @@ No production code or API contract was changed. No tests were run during this so
 
 - Added a librarian API regression expecting an empty search payload to return 422 with an `_check` validation error, based on the declared `required_without_all` rule.
 - Source review identifies a likely bypass: `BookSearchRequest::prepareForValidation()` always merges `_check = 'dummy'`, which may satisfy the required rule even when no actual search field is supplied. This is documented as a defect candidate; the test is unexecuted and no production code was changed.
+
+
+## Verification environment finding (2026-11-17)
+
+- `composer.json` declares PHP `^8.3`, while the current `composer.lock` resolves Symfony 8.1 packages requiring PHP >=8.4.1.
+- The GitHub Actions workflow includes PHP 8.3, 8.4, and 8.5 with `fail-fast: true`. Latest run `44135295525` (commit `b9e699bb6fd57f0d18a7627ba81c0c4b2e39fb8e`) failed at Composer dependency installation on PHP 8.3; the 8.4 and 8.5 jobs were cancelled. PHPUnit was not invoked in any job.
+- This is a dependency/platform mismatch; it does not establish whether the new tests pass or fail. No dependency, workflow, or production code was modified. Resolve with explicit approval, then rerun CI and the test suite.
