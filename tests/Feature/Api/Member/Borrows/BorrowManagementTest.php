@@ -178,4 +178,37 @@ class BorrowManagementTest extends ApiTestCase
         $this->assertDatabaseCount('borrows', 1);
     }
 
+    public function test_member_can_borrow_after_their_unpaid_penalty_is_paid(): void
+    {
+        $member = TestDataFactory::member();
+        $librarian = TestDataFactory::librarian();
+        $previousBook = TestDataFactory::book();
+        $previousBorrow = TestDataFactory::borrow($member, $previousBook);
+        $penalty = TestDataFactory::penalty($member, $previousBorrow);
+        $newBook = TestDataFactory::book(null, [
+            'isbn' => '9780306406195',
+            'total_copies' => 2,
+            'available_copies' => 2,
+        ]);
+
+        $this->authenticateAsLibrarian($librarian)
+            ->putJson('/v1/librarian/pay_penalty', ['id' => $penalty->id])
+            ->assertOk()
+            ->assertJsonPath('message', 'penalty paid successfully');
+
+        $this->assertNotNull($penalty->fresh()->paid_at);
+
+        $this->authenticateAsMember($member)
+            ->postJson('/v1/member/add_borrow', ['book_id' => $newBook->id])
+            ->assertCreated()
+            ->assertJsonPath('message', 'borrow book successful');
+
+        $this->assertDatabaseHas('borrows', [
+            'member_id' => $member->id,
+            'book_id' => $newBook->id,
+            'status' => 'borrowed',
+        ]);
+        $this->assertSame(1, $newBook->fresh()->available_copies);
+    }
+
 }
