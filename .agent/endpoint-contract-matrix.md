@@ -62,7 +62,7 @@ Several search requests add `_check` via `prepareForValidation()` before validat
 
 ### 4.3 Service-level behavior requiring regression coverage
 - `CategoryServices::search`, `MemberServices::search`, and `LibrarianServices::search` compute a normalized LIKE value but append the original value to repository filters.
-- `MemberServices::take_update_attributes` does not hash a changed password before persistence, unlike member creation.
+- `MemberServices::take_update_attributes` does not explicitly hash a changed password, unlike member creation; however, `Member` declares Laravel's `hashed` cast and `Repository::fill_model()` assigns through Eloquent attributes. A regression test now verifies the persisted value is hashed rather than assuming the service-level omission is a defect.
 - `BookCacheServices` accesses `CacheRepository`, which directly calls Redis. `CACHE_STORE=array` does not fake the Redis facade.
 - Book cache keys are built from ISBN/title; cache retrieval only attempts a cache lookup when ISBN or title is provided. Verify title-only and ISBN-based retrieval separately.
 - The cache key expression in `BookCacheServices::get` has suspicious operator precedence and should be characterized with tests before any fix.
@@ -94,5 +94,6 @@ These are source-review observations, not approved production changes:
 5. What is the intended cache invalidation policy for book create/update/delete?
 6. Are response key typos (`massage`) part of a compatibility contract or should they be corrected in a separately approved API change?
 7. What is the intended behavior when deleting categories/members with dependent records, given foreign keys?
+8. `Repository::set_attributes_name()` derives model columns using `static::$model_class::first()->getAttributes()`. When a table is empty, `first()` returns null and repository-backed create operations may fail before inserting their first record. The independent API tests for adding a book, member, and category intentionally exercise empty-table creation and may expose this source defect. Do not patch production code without user approval.
 
 No production-code changes have been made as part of this analysis.
