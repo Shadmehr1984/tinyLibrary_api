@@ -167,3 +167,11 @@ No production code or API contract was changed. No tests were run during this so
 - Added coverage for the `status` filter on `POST /v1/member/search_borrow`: the test verifies that `status=returned` includes the member's returned borrow, excludes that member's active borrow, and does not expose another member's returned borrow.
 - Added validation coverage rejecting an unsupported status value (`pending`) with a field-level validation error. The allowed values are grounded in `BorrowSearchRequest`: `borrowed`, `returned`, and `overdue`.
 - These are authored but unexecuted tests. The controller/service source confirms member scoping and status filtering; no production code or API contract was changed.
+
+
+### Phase 6 coverage update — borrow-search date and limit boundaries (2026-11-17)
+
+- Added a due_date_after search test for the member borrow endpoint. It checks the strict greater-than boundary: a borrow due on the boundary date is excluded, while a later due date is included.
+- Added validation coverage for limit=0, expecting a 422 error on limit. A valid status criterion is supplied so the test isolates the limit constraint.
+- Source contract: BorrowSearchRequest validates due_date_after with the custom Date rule and limit with integer|gt:0; BorrowServices maps the date filter to due_date > value.
+- Tests have not been executed. No production code or API contract was changed.
