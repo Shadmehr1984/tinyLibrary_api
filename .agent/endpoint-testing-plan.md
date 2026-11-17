@@ -161,15 +161,15 @@ This inventory is route-level only. Phase 1 must verify it against the actual im
 ## 7. Progress tracking — update immediately
 
 **Last updated:** 2026-11-17  
-**Overall status:** Phase 1 approved by user; Phase 2 test-infrastructure work in progress.  
-**Current phase:** Phase 2 — Test infrastructure (in progress).
+**Overall status:** Phase 1 approved; Phase 2 infrastructure files committed; execution/verification pending.  
+**Current phase:** Phase 2 — Test infrastructure (verification pending).
 
 | Phase | Status | Progress / notes |
 |---|---|---|
 | Plan and scope | Complete | User approved the proposed approach. This document records scope, constraints, folder proposal, coverage, and delivery phases. |
 | 1. API contract analysis | Complete — user approved | `.agent/endpoint-contract-matrix.md` documents all 24 versioned routes, request validation summaries, response/status behavior, auth middleware, persistence notes, cache behavior, test-data constraints, and source-level defect candidates/open questions. User approved proceeding to Phase 2. |
-| 2. Test infrastructure | In progress | Phase 1 matrix approved by user. Re-read AGENTS.md, plan, and contract matrix. Infrastructure design is being finalized around an isolated API base case, deterministic test-data builders, Sanctum auth helpers, and Redis facade mocking (no real Redis connection). |
-| 3. Authentication & security | Not started | Blocked on Phase 2. |
+| 2. Test infrastructure | Implemented — verification pending | Added `tests/Support/Api/ApiTestCase.php` (RefreshDatabase + strict Redis facade mock), `tests/Support/Factories/TestDataFactory.php` (related records with explicit FK wiring), `tests/Support/Helpers/AuthenticatesApiUsers.php` (member/librarian Sanctum tokens), `tests/Support/README.md`, and `tests/Feature/Api/Infrastructure/TestInfrastructureTest.php` (database relationship, token helper, and Redis mock smoke tests). Files are committed on `main`. The test suite has NOT been executed in this environment; do not mark Phase 2 complete until `composer test` verifies the new smoke tests and any issues are fixed. |
+| 3. Authentication & security | Not started | Blocked until Phase 2 smoke tests are executed and infrastructure is verified. |
 | 4. Librarian API | Not started | Blocked on Phase 2 and security foundations. |
 | 5. Member API | Not started | Blocked on Phase 2 and security foundations. |
 | 6. Edge cases & regression | Not started | Blocked on core endpoint suites. |
