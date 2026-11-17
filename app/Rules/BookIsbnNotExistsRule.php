@@ -16,9 +16,11 @@ class BookIsbnNotExistsRule implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $isbn = DB::table('books')->select(['isbn'])->where('isbn', '=', $value)->get();
+        $isbnExists = DB::table('books')
+            ->where('isbn', '=', $value)
+            ->exists();
 
-        if ($isbn){
+        if ($isbnExists) {
             $fail('isbn '.$value.' already exist');
         }
     }
