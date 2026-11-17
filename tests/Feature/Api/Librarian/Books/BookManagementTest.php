@@ -201,6 +201,15 @@ class BookManagementTest extends ApiTestCase
     }
 
 
+
+    public function test_book_search_rejects_a_request_without_any_search_criteria(): void
+    {
+        $this->authenticateAsLibrarian(TestDataFactory::librarian())
+            ->postJson('/v1/librarian/search_book', [])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['_check']);
+    }
+
     public function test_book_search_rejects_non_positive_limit_and_unknown_category(): void
     {
         $this->authenticateAsLibrarian(TestDataFactory::librarian())
