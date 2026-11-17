@@ -264,3 +264,13 @@ This inventory is route-level only. Phase 1 must verify it against the actual im
 - The tests are source-aligned with `BorrowServices::SEARCH_REQUEST_ATTRIBUTES` and the controller's authenticated-member override. They have not been executed; no production code was changed.
 - Authored source inventory is now 64 `public function test_...` methods across the nine independent API test files (Infrastructure 3, Authentication 15, Librarian Books 12, Librarian Members 9, Librarian Categories 5, Librarian Penalties 3, Member Books 2, Member Borrows 13, Member Penalties 2). This is a source count only, not PHPUnit discovery or execution.
 - Exact next step: continue reviewing uncovered request filters and endpoint boundary cases; keep test execution and CI explicitly out of scope until the user reprioritizes verification or an executable test environment is available.
+
+
+### Phase 6 — borrow-search date and limit boundaries (2026-11-17)
+
+- Added a due_date_after API test for POST /v1/member/search_borrow. It seeds two borrows for the authenticated member with due dates on opposite sides of the supplied boundary and asserts only the later due date is returned.
+- Added a zero-limit validation test. The request includes a valid status filter and limit=0, isolating the limit rule and asserting a 422 validation error on that field.
+- Source basis: BorrowSearchRequest declares due_date_after as a custom Date rule and limit as integer|gt:0; BorrowServices::SEARCH_REQUEST_ATTRIBUTES maps due_date_after to due_date > value.
+- The tests are authored but unexecuted. No production code or API contract was changed.
+- Latest expected source inventory after this addition: 66 test methods across nine files (Infrastructure 3, Authentication 15, Librarian Books 12, Librarian Members 9, Librarian Categories 5, Librarian Penalties 3, Member Books 2, Member Borrows 15, Member Penalties 2). Recount from freshly fetched source before reporting. This is not PHPUnit discovery or execution.
+- Exact next step: continue the source-based coverage review of member penalty filters and librarian penalty payment boundaries; keep CI and test execution out of scope per the user's current priority.
