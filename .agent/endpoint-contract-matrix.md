@@ -160,3 +160,10 @@ No production code or API contract was changed. No tests were run during this so
 
 - Added empty-payload API regression tests for `POST /v1/librarian/search_member` and `POST /v1/librarian/search_category`, expecting 422 with an `_check` validation error.
 - Both Form Requests unconditionally merge `_check = 'dummy'` in `prepareForValidation()`, which appears to bypass their own `required_without_all` rule. These tests record the expected non-empty search contract; execution pending.
+
+
+### Phase 6 coverage update — member borrow search (2026-11-17)
+
+- Added coverage for the `status` filter on `POST /v1/member/search_borrow`: the test verifies that `status=returned` includes the member's returned borrow, excludes that member's active borrow, and does not expose another member's returned borrow.
+- Added validation coverage rejecting an unsupported status value (`pending`) with a field-level validation error. The allowed values are grounded in `BorrowSearchRequest`: `borrowed`, `returned`, and `overdue`.
+- These are authored but unexecuted tests. The controller/service source confirms member scoping and status filtering; no production code or API contract was changed.
