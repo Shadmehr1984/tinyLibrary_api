@@ -77,6 +77,25 @@ class BookManagementTest extends ApiTestCase
         ]);
     }
 
+
+    public function test_librarian_can_update_a_book_to_an_unused_isbn(): void
+    {
+        $librarian = TestDataFactory::librarian();
+        $book = TestDataFactory::book(null, ['isbn' => '9780306406157']);
+
+        $this->authenticateAsLibrarian($librarian)
+            ->putJson('/v1/librarian/update_book', [
+                'target_isbn' => $book->isbn,
+                'isbn' => '9780306406195',
+            ])->assertOk()
+            ->assertJsonPath('message', 'book updated');
+
+        $this->assertDatabaseHas('books', [
+            'id' => $book->id,
+            'isbn' => '9780306406195',
+        ]);
+    }
+
     public function test_librarian_can_soft_delete_a_book(): void
     {
         $librarian = TestDataFactory::librarian();
