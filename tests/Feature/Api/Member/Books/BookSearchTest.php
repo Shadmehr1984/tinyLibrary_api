@@ -23,7 +23,7 @@ class BookSearchTest extends ApiTestCase
         Redis::shouldReceive('expire')->once()->andReturn(1);
 
         $this->authenticateAsMember($member)
-            ->postJson('/v1/member/search_book', ['isbn' => $book->isbn])
+            ->postJson('/api/v1/member/search_book', ['isbn' => $book->isbn])
             ->assertOk()
             ->assertJsonPath('books.0.isbn', $book->isbn);
     }
@@ -33,7 +33,7 @@ class BookSearchTest extends ApiTestCase
         $member = TestDataFactory::member(['active' => false]);
 
         $this->authenticateAsMember($member)
-            ->postJson('/v1/member/search_book', ['title' => 'anything'])
+            ->postJson('/api/v1/member/search_book', ['title' => 'anything'])
             ->assertForbidden();
     }
 }
