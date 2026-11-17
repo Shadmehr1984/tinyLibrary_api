@@ -348,3 +348,4 @@ Laravel automatically mounts the routes declared in `routes/api.php` under `/api
 - All test URLs use the effective `/api/v1/...` prefix.
 - No test suite was executed in this environment. Tests are authored only; runtime result remains unverified.
 - Next step: inspect the final diffs/source-level method counts, then continue remaining endpoint regression work. Do not mark the tests as passing without execution evidence.
+- Fresh source-level recount after this correction: **89 authored `public function test_...` methods across the nine independent API test files** (Infrastructure 3, Authentication 15, Librarian Books 13, Librarian Members 11, Librarian Categories 7, Librarian Penalties 5, Member Books 2, Member Borrows 17, Member Penalties 16). This is a source count only; PHPUnit has not been run.
