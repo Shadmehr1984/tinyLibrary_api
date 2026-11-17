@@ -281,4 +281,20 @@ class BorrowManagementTest extends ApiTestCase
         $this->assertSame(1, $newBook->fresh()->available_copies);
     }
 
+    public function test_member_borrow_search_rejects_an_empty_criteria_payload(): void
+    {
+        $this->authenticateAsMember(TestDataFactory::member())
+            ->postJson('/api/v1/member/search_borrow', [])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['_check']);
+    }
+
+    public function test_member_borrow_search_rejects_limit_without_a_search_criterion(): void
+    {
+        $this->authenticateAsMember(TestDataFactory::member())
+            ->postJson('/api/v1/member/search_borrow', ['limit' => 10])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['_check']);
+    }
+
 }
