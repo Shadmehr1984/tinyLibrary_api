@@ -54,4 +54,16 @@ class CategoryManagementTest extends ApiTestCase
 
         $this->assertDatabaseMissing('categories', ['id' => $category->id]);
     }
+    public function test_add_category_rejects_a_duplicate_name(): void
+    {
+        TestDataFactory::category(['name' => 'Duplicate Category']);
+        
+        $this->authenticateAsLibrarian(TestDataFactory::librarian())
+            ->postJson('/v1/librarian/add_category', [
+                'name' => 'Duplicate Category',
+                'description' => 'Another description for the same category.',
+            ])->assertUnprocessable()
+            ->assertJsonValidationErrors(['name']);
+    }
+
 }
