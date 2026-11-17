@@ -16,9 +16,12 @@ class BorrowNotReturnedRule implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $status = DB::table('borrows')->select(['status'])->where('id', '=', $value)->get();
+        $alreadyReturned = DB::table('borrows')
+            ->where('id', '=', $value)
+            ->where('status', '=', 'returned')
+            ->exists();
 
-        if ($status == 'returned'){
+        if ($alreadyReturned) {
             $fail('book already returned');
         }
     }
