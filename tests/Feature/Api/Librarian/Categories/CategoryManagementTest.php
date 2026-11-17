@@ -75,4 +75,18 @@ class CategoryManagementTest extends ApiTestCase
             ->assertJsonValidationErrors(['name']);
     }
 
+
+    public function test_category_search_matches_a_partial_name(): void
+    {
+        $librarian = TestDataFactory::librarian();
+        $matching = TestDataFactory::category(['name' => 'Distributed Systems']);
+        $other = TestDataFactory::category(['name' => 'Computer Networks']);
+
+        $this->authenticateAsLibrarian($librarian)
+            ->postJson('/v1/librarian/search_category', ['name' => 'Systems'])
+            ->assertOk()
+            ->assertJsonFragment(['id' => $matching->id])
+            ->assertJsonMissing(['id' => $other->id]);
+    }
+
 }
