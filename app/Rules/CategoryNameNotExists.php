@@ -16,9 +16,11 @@ class CategoryNameNotExists implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $name = DB::table('categories')->select(['name'])->where('name', '=', $value)->get();
+        $nameExists = DB::table('categories')
+            ->where('name', '=', $value)
+            ->exists();
 
-        if (sizeof($name) != 0){
+        if ($nameExists) {
             $fail('category '.$value.' already exists');
         }
     }
