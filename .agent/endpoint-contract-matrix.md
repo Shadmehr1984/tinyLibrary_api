@@ -113,3 +113,10 @@ No production code or API contract was changed. No tests were run during this so
 - Delete dependency handling: `LibrarianController::delete_member` and `delete_category` call their services without catching database exceptions. Combined with restrictive foreign keys, deleting referenced rows is expected to reach Laravel's normal exception handler; the exact JSON/status response is not specified in controller code and has not been executed. Do not assert a specific error payload/status without runtime evidence or an explicit API contract.
 
 - Phase 6 cache coverage update: `BookManagementTest` now contains a title-only cache-hit case that asserts the exact Redis SCAN pattern, cache existence check, hash retrieval, and response fields. It uses explicit Redis facade expectations and does not contact a real Redis instance. ISBN cache-hit matching remains a known defect candidate due to the expression above; no production code was changed.
+
+
+### Phase 6 update — ISBN update validation regression (2026-11-17)
+
+- Added an API-level regression test for changing a book's ISBN to a valid, unused ISBN. It asserts HTTP success and persistence of the new ISBN.
+- Source inspection confirms `BookIsbnNotExistsRule` uses `if ($isbn)` where `$isbn` is the Collection returned by Query Builder `get()`. Empty Collection objects are truthy in PHP, so this condition does not distinguish an existing ISBN from an unused one. The rule may therefore reject every ISBN update. This is a source-level defect candidate; runtime behavior remains unverified.
+- The test is intentionally written against the expected valid update contract and may fail until the rule is corrected. No production code or API contract was modified.
