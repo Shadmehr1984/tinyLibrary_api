@@ -200,7 +200,9 @@ This inventory is route-level only. Phase 1 must verify it against the actual im
 
 - Added title-only Redis cache-hit coverage in `BookManagementTest.php`; it verifies SCAN pattern `*Distributed Systems*`, key existence, hash retrieval, and returned book fields using strict Redis expectations.
 - Inspected `BookCacheServices::get` precedence: a non-empty ISBN makes `$isbn . isset($isbn)` truthy, so the ternary returns `-`; the resulting pattern is `*-*`, not an ISBN-specific pattern. Documented as a source-level defect candidate in the contract matrix. No production fix or test that encodes this incorrect behavior as desired was added.
-- Fresh authored-method count: 53 tests across the nine independent API test files. No test execution was performed.
+- Fresh authored-method count before the latest penalty-flow test: 53 tests across the nine independent API test files. No test execution was performed.
 
 
 - Phase 6 cache TTL advancement: tightened the existing librarian ISBN-search cache-miss test so the Redis `expire` expectation verifies both the matching book key prefix and exactly 180 seconds. Updated the endpoint contract matrix with the TTL source (`BookCacheServices::EXPIRE_TIME`) and API-level coverage. This is an authored assertion only; no tests have been executed. Production code remains unchanged.
+
+- Phase 6 cross-endpoint regression: added `test_member_can_borrow_after_their_unpaid_penalty_is_paid` to `BorrowManagementTest.php`. It pays an existing member penalty through the librarian API, verifies `paid_at`, then authenticates as that member and verifies a new borrow succeeds and decrements inventory. Updated the endpoint contract matrix to record the complete unpaid-to-paid transition. This raises the authored source count to 54 test methods; no tests have been executed and no production code was changed.
