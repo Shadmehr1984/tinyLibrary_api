@@ -359,3 +359,10 @@ Laravel automatically mounts the routes declared in `routes/api.php` under `/api
 - `BorrowIsforMemberRule` was already corrected by the user's latest commit and was left unchanged. `LibrarianEmailNotExists` currently has no usage in the inspected Form Requests; its implementation was still normalized, but no behavior was wired into a request.
 - Added `MemberManagementTest::test_add_member_rejects_an_email_already_in_use` as API regression coverage. Existing tests already cover duplicate book ISBN, duplicate category name, duplicate same-day borrow, borrow ownership, already-returned borrow, and updating to an unused ISBN.
 - All changes were committed directly to `main`. Tests were not run; runtime verification remains pending. CI remains out of scope.
+
+### Authentication regression — logout token revocation (2026-11-18)
+
+- Updated both member and librarian logout tests to assert that the corresponding `personal_access_tokens` row (including the `api-test` token name and correct tokenable type) is deleted after logout.
+- Both tests now call `$this->app['auth']->forgetGuards()` before reusing the same Bearer token, preventing a cached guard user from masking token-revocation behavior between requests in the same test.
+- The second request now calls the same role's logout endpoint and expects 401. This isolates the revoked-token authentication contract instead of allowing an unrelated request-validation response to determine the result.
+- Tests are authored but have not been run in this environment. No production code or API contract was changed.
