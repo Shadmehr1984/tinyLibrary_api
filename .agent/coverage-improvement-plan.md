@@ -113,3 +113,16 @@ No tests in these groups should be added solely to inflate the percentage. First
 - No source code, test code, or PHPUnit coverage scope has been changed.
 - **Current status:** Phase A in progress. Need the full coverage summary/uncovered-line details to establish an exact baseline; then implement Phase B with focused tests.
 - **Next step:** inspect exact uncovered line ranges in `BorrowServices` and `PenaltyServices`, along with existing service tests, and propose the smallest meaningful test additions. Do not change production code.
+
+### 2026-11-18 — service gap classification and first domain tests
+
+- Mapped the supplied uncovered line ranges to the current source:
+  - `BorrowServices`: the reported gaps correspond to `take_update_attributes()`, `delete()`, `update()`, and `delayed_borrows()`. The current versioned routes exercise add/search/back; delete/update have no route, and delayed-borrow discovery is only called by the currently unreferenced penalty-maintenance workflow.
+  - `PenaltyServices`: the large gaps correspond primarily to add/delete/update and delayed-penalty maintenance. Current controller call sites use `pay()` and `member_have_unpaid_penalty()`; no current controller/route caller was found for the maintenance methods or `member_reach_borrow_limit()`.
+- Confirmed that `LibrarianServices` has no current route/controller caller and that the zero-coverage librarian CRUD Request classes are not part of the current 24-endpoint API contract. These remain classification items, not automatic test targets.
+- Found a source-level builder invariant issue to investigate separately: `MemberBuilder::__construct()` initializes the remaining-attribute count to 8, but the class exposes 9 distinct setters/properties (including nullable `id`). With exactly one of the nine attributes omitted, the counter can reach zero and `build()` may attempt to read an uninitialized property instead of throwing `NotSetAttributeException`. No production change was made.
+- Added `tests/Unit/Domain/BuildersTest.php` with focused tests for a complete Member build, rejection when multiple attributes are missing, and rejection of an invalid integer `active` value. These tests also exercise the otherwise uncovered `NotSetAttributeException` path without encoding the suspected one-missing-field defect as expected behavior.
+- Tests have **not** been run by the agent. The user's earlier report that their existing suite passed does not verify this newly added file.
+- No production code or PHPUnit source scope was changed.
+- **Current status:** Phase A call-graph classification is complete for the highest-priority low-coverage service classes; Phase D has begun with a small MemberBuilder test addition. Overall coverage has not been remeasured.
+- **Next step:** have the user run the focused builder test and full suite; then decide whether to add an explicit failing regression for the MemberBuilder off-by-one issue after approval to fix the production defect. Continue with other domain gaps only after the new test is verified.
