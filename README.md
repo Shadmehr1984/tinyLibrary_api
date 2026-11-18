@@ -1,5 +1,7 @@
 # Tiny Library API
 
+![Coverage](https://img.shields.io/badge/coverage-83.9%25-brightgreen?style=for-the-badge)
+
 A RESTful API for managing a library's catalog, members, borrowing activity, and penalties. The application provides separate authenticated workflows for **librarians** and **members**, with token-based authentication and a versioned JSON API.
 
 ## Contents
