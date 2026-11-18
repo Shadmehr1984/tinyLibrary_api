@@ -235,8 +235,6 @@ The endpoint contract is defined by the current routes, Form Requests, controlle
 
 ## Test coverage
 
-<text></text>
-
 The latest coverage figure reported by the project maintainer is **83.9% line coverage** (2026-11-18), with the PHPUnit source scope configured to include `app/`.
 
 This is the last reported measurement, not a live metric. It predates the recently added focused `MemberBuilder` unit tests; rerun coverage to obtain the updated percentage.
