@@ -142,8 +142,16 @@ class AuthenticationTest extends ApiTestCase
             ->assertOk()
             ->assertJsonPath('message', 'successful logout');
 
+        $this->assertDatabaseMissing('personal_access_tokens', [
+            'tokenable_id' => $member->id,
+            'tokenable_type' => Member::class,
+            'name' => 'api-test',
+        ]);
+
+        $this->app['auth']->forgetGuards();
+
         $this->withToken($token)
-            ->postJson('/api/v1/member/search_borrow')
+            ->postJson('/api/v1/member/logout')
             ->assertUnauthorized();
     }
 
@@ -166,6 +174,14 @@ class AuthenticationTest extends ApiTestCase
             ->postJson('/api/v1/librarian/logout')
             ->assertOk()
             ->assertJsonPath('message', 'successful logout');
+
+        $this->assertDatabaseMissing('personal_access_tokens', [
+            'tokenable_id' => $librarian->id,
+            'tokenable_type' => Librarian::class,
+            'name' => 'api-test',
+        ]);
+
+        $this->app['auth']->forgetGuards();
 
         $this->withToken($token)
             ->postJson('/api/v1/librarian/logout')
